@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+
+<?rfc toc="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc symrefs="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc comments="yes" ?>
+<?rfc inline="yes" ?>
+
+<rfc ipr="trust200902" docName="draft-vanrein-http-unauth-user-00" category="std">
+
+<front>
+
+	<title abbrev="HTTP user@">User Names for HTTP Resource Views</title>
+
+	<author initials="R" surname="Van Rein" fullname="Rick van Rein">
+		<organization>InternetWide.org</organization>
+		<address>
+			<postal>
+				<street>Haarlebrink 5</street>
+				<city>Enschede</city>
+				<region>Overijssel</region>
+				<code>7544 WP</code>
+				<country>The Netherlands</country>
+			</postal>
+			<email>rick@openfortress.nl</email>
+		</address>
+	</author>
+
+	<date day="23" month="January" year="2020"/>
+
+	<abstract>
+	<t>Most protocols support users under domain names, but HTTP is an
+	exception.  Given that it is useful to have this facility for HTTP
+	and that it merely requires a consistent treatment by clients, we
+	specify how to map such URI patterns to HTTP Requests.</t>
+	</abstract>
+
+</front>
+
+
+<middle>
+
+<section title="Introduction" anchor="intro">
+
+<t>Most protocols support Network Access Identifiers like john@example.com to
+identify users like john within domains such as example.com.  The URI format
+for HTTP can express such authority sections, and many online applications
+seem to want to address individual users, but HTTP offers no representation
+for user names.  This specification solves that with a new header.</t>
+
+<t>Historically, user names have been derived from (Basic and Digest)
+authentication.  This is not generally correct; the user name in the URI
+represents the resource, not the visitor.  The use of a new header allows
+indepedency between authentication and resource viewing.</t>
+
+<t>Browsers have supported (Basic and Digest) authentication with a scheme
+of "user:password" in the authority section of URIs.  This has now been
+deprecated [Section 3.2.1 of <xref target="RFC3986"/>] but the form with
+just "user" but not ":password" is still open to use.  Various HTTP clients
+have different handling of this form, sometimes flagging it incorrectly as
+a security hazard, which is another reason to specify what to do.</t>
+
+<t>The purpose of this specification is to give a clear meaning to a URI with
+a user name portion, but with no password.  Such a URI may be implemented by
+variation of the HTTP resource space, just as is often done for host name.</t>
+
+</section>
+
+
+<section title="The HTTP User-View Header" anchor="header">
+
+<t>The "User-View" header field in a request provides the user name
+from the target URI.  The value is taken from the userinfo in the 
+authority section [Section 3.2 of <xref target="RFC3986"/>] which
+MUST NOT include a colon.  An empty header value indicates absense
+of a user name.  The header value holds precisely one value with
+the following ABNF grammar:
+<figure><artwork><![CDATA[
+User-View = 0*( unreserved / pct-encoded / sub-delims )
+]]></artwork></figure>
+The referenced non-terminals are as for URIs <xref target="RFC3986"/>.</t>
+
+<t>The User-View header MAY occur in requests and responses, but
+MUST NOT be included in trailers [Section 4.1 of <xref target="RFC7230"/>].</t>
+
+</section>
+
+
+<section title="Protocol Handling of User-View" anchor="protocol">
+
+<t>User agents SHOULD render user names in authority sections as they
+do host names.  User agents SHOULD NOT remove user names from the URI.
+User agents MAY remove the "@" symbol (U+0040) from a URI when the
+preceding user name is empty.  User agents SHOULD indicate deprecation
+of the form "user:password" and MUST NOT complain in any way about a
+user name that adheres to the above grammar.</t>
+
+<t>HTTP servers SHOULD NOT use the User-View in responses except when
+responding to a user agent known to support it, possibly because they
+sent the User-View header in a request.</t>
+
+<t>When the User-View header is included in a response, it declares
+that any references relative to the resource returned should consider
+the returned user name part of the origin of the relative reference
+[Section 4.2 of <xref target="RFC3986"/>], inasfar as no authority
+information is provided in the relative reference.</t>
+
+<t>An empty User-View header value in a response indicates absense
+of a user name, due to removal relative to a request.  User agents
+receiving a User-View as part of an HTTP redirect
+[Section 6.4 of <xref target="RFC7231"/>]
+MUST update the
+user name in the URI accordingly when the authority part of the URI
+is not replaced as part of a new URI location.</t>
+
+<t>HTTP servers MAY redirect a request to a location that encodes the
+user name in the path of the URI, possibly setting the User-View header
+to an empty value.  This allows sites to define their own path syntax
+for user names, without users or tools needing to be aware of such
+local conventions.</t>
+
+<t>Whether a User-View header is used after a redirect, and what value
+it has, is determined by the target URI after its construction from
+the redirection and, possibly, the previous target URI.  This means
+that the User-View header MUST NOT be carried from a redirection
+response to its follow-up request, but instead freshly constructed.</t>
+
+<t>Intermediates MUST NOT add, remove or modify the User-View header.</t>
+
+</section>
+
+<section title="Caching Behaviour" anchor="cache">
+
+<t>The privacy or security of an HTTP resource does not change if it
+uses an additional User-View header.  This is because the header
+addresses a resource location, but is independent of authentication
+or authorisation, for which other headers are in use.</t>
+
+<t>HTTP caches <xref target="RFC7234"/>
+need to distinguish responses when they are requested with different
+User-View header values.  To this end, the Vary header
+[Section 7.1.4 of <xref target="RFC7231"/>] MUST be present, and
+MUST either be valued "*" or include the "user-view" token, for any
+response that has been influenced by a User-View header.  Software
+or configurations that ignore the header are not under this
+requirement.</t>
+
+</section>
+
+
+<section title="IANA Considerations" anchor="iana">
+
+<t>IANA adds the following entry to the Message Headers registry:
+<figure><artwork><![CDATA[
+Header Field Name   Template   Protocol   Status    Reference
+------------------  ---------  ---------  -------   ----------
+User-View                      http       TBD       TBD:THIS_SPEC
+]]></artwork></figure>
+</t>
+
+</section>
+
+<section title="Security Considerations">
+
+<t>The user names in HTTP URIs as defined herein is not related to
+authentication or authorisation, and implies no security concerns.</t>
+
+<t>These user names refine the model of resource addressing for HTTP,
+but any concerns related to privacy or secrecy of resources are already
+habitually addressed in HTTP servers.  This habit MUST be applied to
+this new, more refined resource addressing model.</t>
+
+</section>
+
+</middle>
+
+
+<back>
+
+<references title="Normative References">
+<!-- <?rfc include="reference.RFC.2617.xml"?> -->
+<?rfc include="reference.RFC.3986.xml"?>
+<?rfc include="reference.RFC.7230.xml"?>
+<?rfc include="reference.RFC.7231.xml"?>
+<?rfc include="reference.RFC.7234.xml"?>
+<!-- <?rfc include="reference.RFC.4282.xml"?> -->
+</references>
+
+<!--
+<references title="Informative References">
+<?rfc include="reference.RFC.3579.xml"?>
+<?rfc include="reference.RFC.4121.xml"?>
+<?rfc include="reference.RFC.5246.xml"?>
+<?rfc include="reference.RFC.7055.xml"?>
+</references>
+-->
+
+</back>
+
+</rfc>
