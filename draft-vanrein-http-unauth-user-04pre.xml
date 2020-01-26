@@ -1,0 +1,386 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+
+<?rfc toc="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc symrefs="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc comments="yes" ?>
+<?rfc inline="yes" ?>
+
+<rfc ipr="trust200902" docName="draft-vanrein-http-unauth-user-04" category="std">
+
+<front>
+
+	<title abbrev="HTTP user@">User Names for HTTP Resources</title>
+
+	<author initials="R" surname="Van Rein" fullname="Rick van Rein">
+		<organization>InternetWide.org</organization>
+		<address>
+			<postal>
+				<street>Haarlebrink 5</street>
+				<city>Enschede</city>
+				<region>Overijssel</region>
+				<code>7544 WP</code>
+				<country>The Netherlands</country>
+			</postal>
+			<email>rick@openfortress.nl</email>
+		</address>
+	</author>
+
+	<date day="26" month="January" year="2200"/>
+
+	<abstract>
+	<t>Most protocols support users under domain names, but HTTP does
+	not.  Usage patterns in the wild do suggest a desire to have this
+	facility.  This specification defines a header for user names,
+	orthogonal to any authentication or authorisation concerns.</t>
+	</abstract>
+
+</front>
+
+<!--
+
+CHANGES FROM 01 TO 02:
+ * Header renamed from "User-View" to "User", envvar is now HTTP_USER
+ * No longer supported the header in responses (instead use redirection)
+ * Redirection / Links retain user@ when relative w/o authority component
+
+CHANGES FROM 00 TO 01:
+ * Textual improvements of rough summing-up of requirements
+ * Unknown headers are ignored as a matter of course
+ * User part rendering in RFC 3986 is cautious about abuse patterns
+ * Added environment variable HTTP_USERVIEW
+
+
+
+-->
+
+
+<middle>
+
+<section title="Introduction" anchor="intro">
+
+<t>Most protocols support Network Access Identifiers
+<xref target="RFC7542"/> like john@example.com to
+identify users like john under domains such as example.com.  The URI format
+for HTTP can express [Section 2.7.1 of <xref target="RFC7230"/>]
+such authority sections, and many online applications
+seem to want to address individual users, but HTTP URIs do not usually
+express user names.  This specification therefore introduces
+a header "User", in close parallel to the "Host" header.</t>
+
+<t>Historically, user names have been coupled to (Basic and Digest)
+authentication.  This is not generally correct; the user name in the URI
+specifies a resource name space, not an (authenticated) client identity.  By using
+a new header field, this specification allows authentication to be orthogonal
+to resource name space selection.</t>
+
+<t>Some user agents have supported (Basic and Digest) authentication with a
+"user:password" format in the authority section of URIs.  This has now been
+deprecated [Section 3.2.1 of <xref target="RFC3986"/>] but the form with
+just "user" and no ":password" continues to be acceptable.  Various HTTP clients
+have different handling for this form, sometimes flagging it incorrectly as
+a security hazard, which also motivates a specification for proper handling.</t>
+
+<!--
+<t>TODO: Issue filed with HTTPbis,
+https://github.com/httpwg/http-core/issues/278
+and offered a Pull Request,
+https://github.com/httpwg/http-core/compare/master...arpa2:userinfo-password
+as a followup of somewhat late Errata against RFC7230,
+https://www.rfc-editor.org/errata/eid5964</t>
+-->
+
+<t>The purpose of this specification is to define clear meaning for HTTP URIs
+with a user name.</t>
+
+</section>
+
+
+<section title="The HTTP User Header" anchor="header">
+
+<t>The "User" header field provides an aspect of the desired
+resource name scope.  The value is usually taken
+from the authority section [Section 3.2 of <xref target="RFC3986"/>]
+of the target URI and MUST NOT include a ":" colon (U+003a) character.</t>
+
+<t>The User header value holds
+precisely one value with the following ABNF grammar:
+<figure><artwork><![CDATA[
+User = 1*( unreserved / pct-encoded / sub-delims )
+]]></artwork></figure>
+The referenced non-terminals are as for URIs <xref target="RFC3986"/>
+and can be directly included in the quoted-string form; a plain token cannot
+express "(", ")", "=", ";" and "," without escaping
+[Section 3.2.6 of <xref target="RFC7230"/>].</t>
+
+<!--
+
+CHARACTER SETS FOR URI-USERINFO AND HTTP-HEADER COMPARED:
+
+This is useful to know if the userinfo can be inserted into the User
+header without further ado.
+
+unreserved  = ALPHA			OK_TOKEN	OK_QUOTED
+	/ DIGIT				OK_TOKEN	OK_QUOTED
+	/ "-"				OK_TOKEN	OK_QUOTED
+	/ "."				OK_TOKEN	OK_QUOTED
+	/ "_"				OK_TOKEN	OK_QUOTED
+	/ "~"				OK_TOKEN	OK_QUOTED
+
+pct-encoded = "%" HEXDIG HEXDIG		OK_TOKEN	OK_QUOTED
+
+sub-delims = "!"			OK_TOKEN	OK_QUOTED
+	/ "$"				OK_TOKEN	OK_QUOTED
+	/ "&"				OK_TOKEN	OK_QUOTED
+	/ "'"				OK_TOKEN	OK_QUOTED
+	/ "("				NO_DELIM	OK_QUOTED
+	/ ")"				NO_DELIM	OK_QUOTED
+	/ "*"				OK_TOKEN	OK_QUOTED
+	/ "+"				OK_TOKEN	OK_QUOTED
+	/ ","				NO_DELIM	OK_QUOTED
+	/ ";"				NO_DELIM	OK_QUOTED
+	/ "="				NO_DELIM	OK_QUOTED
+
+-->
+
+<!--
+
+CHARACTER SETS FOR URI-USERINFO AND NAI COMPARED:
+
+Do not use this; it is up to the server to constrain the grammar of
+the userinfo to something like a NAI.  It does make sense, but after
+removal of escapes, so character sets matter less.
+
+	URI \ NAI ::= "(" / ")" / "," / ";"
+	NAI \ URI ::= "#" / "%" / "/" / "?" / "^" / "`" / "{" / "|" "}"
+		    \ UTF8-xtra-char [defined in RFC 7542]
+
+ALSO, A SYNTAX DIFFERENCE:
+
+	In a URI, dots can be anywhere.
+
+	In a NAI, dots separate non-empty character sequences.
+
+ARE THERE DIFFERENCES IN CASE SENSITIVITY?
+
+MAYBE:
+
+	- Define our own characters, including ASCII pct-encoded
+	- Use UTF8-xtra-char from RFC 7542 for UTF-8 specifics
+	- Note that RFC 7542 does not pct-encode UTF-8
+
+-->
+
+</section>
+
+
+<section title="Protocol Handling of HTTP User" anchor="protocol">
+
+<t>User agents SHOULD render user names in authority sections whenever
+they render host names, though it may be helpful if it stands out graphically
+[Section 7.6 of <xref target="RFC3986"/>].
+User agents SHOULD NOT remove user names from the target URI.
+User agents MAY remove the "@" (U+0040) symbol from a URI when the
+preceding user name is empty.</t>
+
+<t>User agents MUST reject userinfo sections containing a colon ":"
+(U+003a) or URI syntax errors and MAY warn about potential security
+problems when they contain a dot "." (U+002e), but SHOULD accept and
+pass all other non-empty userinfo sections that conform to URI syntax
+in a User header.</t>
+
+<t>The User header MAY appear in requests and MUST NOT occur in responses.
+<!-- also not in trailers [Section 4.1 of <xref target="RFC7230"/>].  -->
+When sending it, the user agent SHOULD generate User as the next header field after Host.
+Transparent intermediates such as proxies and caches MUST NOT add,
+remove or modify the User header.  The CONNECT method and Host header
+both exclude this information, and the User header completes it.</t>
+
+<t>Servers MAY ignore the User header
+[Section 3.2.1 of <xref target="RFC7230"/>].  When they use it,
+the Effective Request URI [Section 5.5 of <xref target="RFC7230"/>]
+is constructed with the userinfo and the at "@" delimiter (U+0040)
+prefixed to the host name and optional port.  Although authentication
+is orthogonal to resource selection, the scope of a realm is scoped
+under the authority section [Section 2.2 of <xref target="RFC7235"/>]
+and so the userinfo partitions realms.</t>
+
+<t>HTTP caches <xref target="RFC7234"/> derive no privacy or
+security concerns from the User header, but they do need to
+to differentiate requests based on it.  To accommodate that,
+the Vary header [Section 7.1.4 of <xref target="RFC7231"/>] MUST
+be generated by the server in the matching response, and the header
+MUST either be a single "*" star (U+002a) or list the "user" name,
+for all responses whose processing was influenced by the
+User header.  This requirement has no bearing on server software and
+configurations that ignore the User header.</t>
+
+<t>During redirects or other traversals to (relative) HTTP URIs, the
+user name MUST be overwritten when the new URI specifies an authority
+component, and it MUST be kept otherwise.  User agents MUST refuse URIs
+with non-empty userinfo sub-component that do not conform to the
+User header grammar; user agents MUST send any other non-empty userinfo
+sub-components as the value of the User header in requests for the
+target URI.</t>
+
+</section>
+
+<section title="Orthogonality of Authentication (Example)" anchor="ortho">
+
+<t>The user name in a URI refines the resource selection process on a host,
+but it is easily confused with the orthogonal concept of
+authentication.  Below is an example to demonstrate how these
+concepts relate intuitively, but only as the result of access control, which
+is a local choice on the server but not a specification-driven connection.
+By demonstrating group access, the example shows a less restrictive model
+that derives from this orthogonality of concepts.</t>
+
+<t>The remainder of this section is informative.</t>
+
+<t>John and Mary both work at the Sales department of Example, Inc.
+John has written a document and wants Mary to review it.  Mary opens a
+link to the document name space under the sales account at
+https://sales@example.com/docs and her user agent sends:
+<figure><artwork><![CDATA[
+GET /docs HTTP/1.1
+Host: example.com
+User: sales
+]]></artwork></figure>
+The server redirects to add a slash, and when this is specific to
+the sales account, it must inform caches about this with the Vary header:
+<figure><artwork><![CDATA[
+HTTP/1.1 301 Moved Permanently
+Location: /docs/
+Vary: User
+]]></artwork></figure>
+Since the new location lacks an authority component, this part is retained
+from the referring URI, and the user agent redirects to
+https://sales@example.com/docs/ and sends:
+<figure><artwork><![CDATA[
+GET /docs/ HTTP/1.1
+Host: example.com
+User: sales
+]]></artwork></figure>
+By this time, the server runs into access control, and decides that it
+needs an authenticated client identity.  To this end, it responds with a
+challenge to the Documents realm:
+<figure><artwork><![CDATA[
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Knock realm="Documents"
+Vary: User
+]]></artwork></figure>
+Mary's user agent needs to collect credentials, and may hint at the user
+name "sales" from the URI but, this being the name of a shared resource,
+Mary has no credentials and instead authenticates as "mary":
+<figure><artwork><![CDATA[
+GET /docs/ HTTP/1.1
+Host: example.com
+User: sales
+Authorization: Knock realm="Documents", user="mary", ...
+]]></artwork></figure>
+At some point, the server accepts Mary's authentication and
+proceeds to access control.  This phase checks if user "mary" may
+access realm "Documents" of "https://sales@example.com" by checking
+that Mary works for the Sales department.  Once this is assured,
+the server returns the requested document list:
+<figure><artwork><![CDATA[
+HTTP/1.1 200 OK
+Vary: User
+Content-Type: text/html
+
+...
+<a href="/docs/review.cgi?docid=123">Review 123 now</a>
+...
+]]></artwork></figure>
+Mary clicks on the link to /docs/review.cgi?docid=123 and her user agent
+sees a relative reference with no authority component, so this is
+again used from the referring URI.  The new URI therefore becomes
+https://sales@example.com/docs/review.cgi?docid=123 for which the user
+agent sends:
+<figure><artwork><![CDATA[
+GET /docs/review.cgi?docid=123 HTTP/1.1
+Host: example.com
+User: sales
+Authorization: Knock realm="Documents", user="mary", ...
+]]></artwork></figure>
+After access control, the server starts the CGI script with environment
+variables LOCAL_USER=sales and REMOTE_USER=mary of which only the latter
+is an authenticated result.  The script interprets the LOCAL_USER as a
+group account and the REMOTE_USER as the acting group member, and returns
+a page for review of the document and Mary can get to work.</t>
+
+</section>
+
+
+<section title="IANA Considerations" anchor="iana">
+
+<t>IANA adds the following entry to the Message Headers registry:
+<figure><artwork><![CDATA[
+Header Field Name   Template   Protocol   Status    Reference
+------------------  ---------  ---------  -------   ----------
+User                           http       TBD       TBD:THIS_SPEC
+]]></artwork></figure>
+</t>
+
+</section>
+
+<section title="Security Considerations">
+
+<t>The User header field as defined herein is orthogonal to issues of
+authentication or authorisation, and adds no security concerns.</t>
+
+<!-- blablabla
+<t>These user names refine the model of resource addressing for HTTP,
+but any concerns related to privacy or secrecy of resources are already
+habitually addressed in servers.  This habit MUST be applied to
+this new, more refined resource addressing model.</t>
+-->
+
+</section>
+
+</middle>
+
+
+<back>
+
+<references title="Normative References">
+<!-- <?rfc include="reference.RFC.2617.xml"?> -->
+<?rfc include="reference.RFC.3986.xml"?>
+<?rfc include="reference.RFC.7230.xml"?>
+<?rfc include="reference.RFC.7231.xml"?>
+<?rfc include="reference.RFC.7234.xml"?>
+<?rfc include="reference.RFC.7235.xml"?>
+<?rfc include="reference.RFC.7542.xml"?>
+</references>
+
+<!--
+<references title="Informative References">
+<?rfc include="reference.RFC.3579.xml"?>
+<?rfc include="reference.RFC.4121.xml"?>
+<?rfc include="reference.RFC.5246.xml"?>
+<?rfc include="reference.RFC.7055.xml"?>
+</references>
+-->
+
+
+<section title="HTTP User Environment Variable" anchor="envvars">
+
+<t>The following variable SHOULD be passed up to applications that
+run on top of the HTTP stack in a server:
+<list style="hanging" hangIndent="6">
+<t hangText="LOCAL_USER">gives the HTTP User header value
+	after grammar checking and percent-decoding.  Like the customary
+	variables HTTP_HOST and PATH_INFO, this specifies the
+	resource being requested.  The HTTP_USER header does not
+	describe the identity of the HTTP client, which usually
+	lands in REMOTE_USER after authentication.</t>
+</list></t>
+
+</section>
+
+</back>
+
+</rfc>
