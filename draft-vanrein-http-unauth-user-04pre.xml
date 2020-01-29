@@ -428,7 +428,7 @@ that adhere to older and possibly deprecated usage patterns.</t>
 expected from user agents who conflate resource userinfo with authentication
 user.  Such user agents will be less flexible, and will not be able to
 support more advanced usage patterns that separate these concepts, such as
-shared/group resources addressed with the User: header field and, when desired,
+shared/group resources addressed with the User header field and, when desired,
 authentication through an independent set of headers.  Among the tools to
 drive such patterns could be the negotiation of more advanced mechanisms,
 even just Digest authentication.</t>
@@ -454,8 +454,8 @@ therefore need some care for backward compatibility support.</t>
 require a User header; such resources may be described with a URI holding
 a present but empty userinfo field.  Failure to send a User header to
 such resources when the URI holds one can be assumed to have originated
-from a user agent that support it.  When an offer for Basic authentication
-is presented, it may be interpreted as the older approach to userinfo, and
+from a user agent that fails to support it.  When an offer for Basic authentication
+is presented, it may be interpreted as the conflated approach to userinfo, and
 treated as a substitute for the User header.  If neither is offered, an
 error may be reported, or control redirected to another means of selecting
 a resource user.</t>
@@ -476,8 +476,8 @@ should be treated as the canonical URI.</t>
 <t>This appendix is informative.</t>
 
 <t>Whether and how the User header is used to find resources is the
-prerogative of its server.  A conservative cache design might insert
-the User header value in its request URI, but lose the capability of
+prerogative of their server.  A conservative cache design might insert
+the User header value in request URIs, but lose the capability of
 seeing the equivalence of a resource as perceived by the server.
 The inclusion of the name "User" in the Vary header of the response
 provides a more accurate cache instruction.</t>
@@ -487,7 +487,7 @@ only signifies a refinement of the resource name space on the server.
 The rules that signify authentication as default indicator of privacy
 is orthogonal to the User header.  This is one reason why it is good
 to separate resource user and authentication user; Basic authentication
-may work to select resources, but it reduces cache performance.</t>
+with no password may be used to select resources, but it reduces cache performance.</t>
 
 </section>
 
@@ -496,10 +496,10 @@ may work to select resources, but it reduces cache performance.</t>
 <t>This specification could be improved thanks to input from
 Daniel Stenberg,
 Amos Jeffries,
-Henri Manson,
+Paul Vixie,
 James Fuller
 and
-Paul Vixie.</t>
+Henri Manson.</t>
 
 
 </section>
