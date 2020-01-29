@@ -222,6 +222,11 @@ prefixed to the host name and optional port.  Realms are specific to
 an authority section [Section 2.2 of <xref target="RFC7235"/>]
 and so a realm never spans across different userinfo values.</t>
 
+<t>As a result of a consistent translation of any User header value
+into the Effective Request URI, the server would map consistently to
+resources.  It is merely enabled to include a User header as an
+extra input variable to this mapping to resources.</t>
+
 <t>HTTP caches <xref target="RFC7234"/> derive no privacy or
 security concerns from the User header, but they do need to
 differentiate requests based on it.  To accommodate that,
@@ -419,11 +424,14 @@ first adding the User header, and later dropping the deprated pattern with
 have a free choice to gradually phase out clients or client configurations
 that adhere to older and possibly deprecated usage patterns.</t>
 
-<t>Once environments stop using Basic authentication to select users, they gain
-an ability to select a resource user independently from an authentication
-user.  This pattern supports more advanced usage patterns, such as shared/group
-resources addressed with the User: header field and, when desired,
-authentication through an independent set of headers.</t>
+<t>Sending both the User header and Basic authentication is only to be
+expected from user agents who conflate resource userinfo with authentication
+user.  Such user agents will be less flexible, and will not be able to
+support more advanced usage patterns that separate these concepts, such as
+shared/group resources addressed with the User: header field and, when desired,
+authentication through an independent set of headers.  Among the tools to
+drive such patterns could be the negotiation of more advanced mechanisms,
+even just Digest authentication.</t>
 
 </section>
 
@@ -467,7 +475,19 @@ should be treated as the canonical URI.</t>
 
 <t>This appendix is informative.</t>
 
-<t>The Vary header is prescribed on all results that TODO</t>
+<t>Whether and how the User header is used to find resources is the
+prerogative of its server.  A conservative cache design might insert
+the User header value in its request URI, but lose the capability of
+seeing the equivalence of a resource as perceived by the server.
+The inclusion of the name "User" in the Vary header of the response
+provides a more accurate cache instruction.</t>
+
+<t>Whether a result is "private" is independent of the User header, as that
+only signifies a refinement of the resource name space on the server.
+The rules that signify authentication as default indicator of privacy
+is orthogonal to the User header.  This is one reason why it is good
+to separate resource user and authentication user; Basic authentication
+may work to select resources, but it reduces cache performance.</t>
 
 </section>
 
