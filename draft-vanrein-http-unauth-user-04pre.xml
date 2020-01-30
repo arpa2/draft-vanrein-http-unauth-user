@@ -192,6 +192,45 @@ MAYBE:
 </section>
 
 
+<section title="URI Interpretation" anchor="uri">
+
+<t>This section is informative.</t>
+
+<t>The extension of resource naming with a user is a general concept
+of the URI format and is also common for addressing users with SMTP,
+SIP, XMPP and many other protocols.  By allowing users in HTTP resource
+names, a better crossover of identities with these protocols can be
+achieved.  Unlike server-specific user name mappings, the specified
+meaning of URI userinfo enables such crossovers to be automated.</t>
+
+<t>There is a current practice of storing an authentication name in
+the userinfo portion of a URI, usually with a password in the deprecated
+"user:password" form.  The reason why this is attractive is that it
+allows sending of Basic authentication in the first request; Basic is
+especially suited for this because it does not incorporate a server-sent
+challenge.</t>
+
+<t>Having never been standardised, the mechanistic side of this is highly
+diverse, and far from portable between browsers.  In other words, URIs
+cannot be passed around and their usage pattern is specific for the client
+software in use.  On grounds of this immobility, it suffices to be backward
+compatible <xref target="compat.basic"/> with this practice.</t>
+
+<t>This specification follows the URI's intention of the userinfo field,
+and prescribes copying its value into the User header.  It will however
+remove anything from a colon onward, to match the portion of userinfo
+that is to be rendered.</t>
+
+<t>Both the general userinfo format and the removal of anything starting
+from a colon allow the derivation of an empty string value for the User
+header, which is indeed permitted.  Servers may interpret this empty
+User header as they see fit; it may be a default page, to be used for
+URIs that expect a user name need to be completed.  Or, after client
+authentication, all reachable user-specific URIs may be listed.</t>
+
+</section>
+
+
 <section title="Protocol Handling of HTTP User" anchor="protocol">
 
 <t>User agents SHOULD render userinfo in the target URI
