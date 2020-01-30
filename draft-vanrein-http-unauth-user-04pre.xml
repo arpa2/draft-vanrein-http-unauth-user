@@ -48,7 +48,8 @@ CHANGES FROM 03 TO 04:
  * Not adding pressure on the "user:password" form deprecated in RFC 3896
  * Compatibility with Basic Authentication, use at the same time as User
  * Compatibility with RESTful Patterns, restraint to safe patterns
- * TODO: Caching
+ * Compatibility with Caching
+ * From URI userinfo to HTTP User header
 
 CHANGES FROM 02 TO 03:
  * Combined protocol aspects more logically
