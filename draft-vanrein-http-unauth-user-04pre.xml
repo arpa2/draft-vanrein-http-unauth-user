@@ -92,6 +92,21 @@ not an (authenticated) user identity.  By introducing
 a new header field, this specification allows authentication to be orthogonal
 to resource name space selection.</t>
 
+<t>Orthogonality generalises the user concepts without forcing them to be
+separate.  Servers can be configured with resource users that demand
+authentication with the same client name; they may also accept authentication
+as an alias to a resource user.  Clients may accept authentication requests
+and use their submitted resource user as a hint to the authentication user.</t>
+
+<t>The value of orthogonal users lies in more advanced cases, of which these
+approaches are merely a specific form.  Servers may welcome members to
+authenticate against a shared/group resource.  Clients treat the resource
+user as part of the realm identity and can use it to locate the customary
+authentication user for that realm.  Credentials need not be tied to the
+server, so it is possible to "bring your own identity" by facilitating
+realm crossover for credentials.</t>
+
+<!-- MOVED DOWN TO SEPARATE SECTIONS
 <t>When user agents support (Basic and Digest) authentication through URIs,
 they usually allow a "user:password" format in the authority section of URIs.
 This practice has been
@@ -99,6 +114,7 @@ deprecated [Section 3.2.1 of <xref target="RFC3986"/>] but the form with
 just "user" and no ":password" continues to be acceptable.  Different user
 agents show varied handling for this form, sometimes flagging it incorrectly as
 a security hazard, which also motivates a specification for proper handling.</t>
+-->
 
 <!--
 <t>TODO: Issue filed with HTTPbis,
@@ -119,7 +135,8 @@ with a userinfo component.</t>
 
 <t>The "User" header field provides an aspect of the desired
 resource name scope.  The value can be inserted by software or be taken
-from the userinfo component [Section 3.2 of <xref target="RFC3986"/>]
+from the visible portion of the userinfo component
+[Section 3.2 of <xref target="RFC3986"/>]
 of the target URI but it MUST NOT include a ":" colon (U+003a) character.</t>
 
 <t>The User header value holds
@@ -198,24 +215,24 @@ MAYBE:
 <t>This section is informative.</t>
 
 <t>The extension of resource naming with a user is a general concept
-of the URI format and is also common for addressing users with SMTP,
+of the URI format and is already used for addressing users with SMTP,
 SIP, XMPP and many other protocols.  By allowing users in HTTP resource
-names, a better crossover of identities with these protocols can be
-achieved.  Unlike server-specific user name mappings, the specified
+names, better crossover of identities with these protocols can be
+achieved.  Unlike server-specific user name mapping conventions, the specified
 meaning of URI userinfo enables such crossovers to be automated.</t>
 
 <t>There is a current practice of storing an authentication name in
-the userinfo portion of a URI, usually with a password in the deprecated
-"user:password" form.  The reason why this is attractive is that it
+the userinfo portion of a URI.  This is useful because it allows
 allows sending of Basic authentication in the first request; Basic is
 especially suited for this because it does not incorporate a server-sent
 challenge.</t>
 
 <t>Having never been standardised, the mechanistic side of this is highly
 diverse, and far from portable between browsers.  In other words, URIs
-cannot be passed around and their usage pattern is specific for the client
-software in use.  On grounds of this immobility, it suffices to be backward
-compatible <xref target="compat.basic"/> with this practice.</t>
+cannot be spread freely and their usage pattern is dedicated for the client
+software in use.  On grounds of this immobility, it would have been sufficient
+to not break <xref target="compat.basic"/> this practice.  What this proposal
+does, however, is completely support this pattern as a special case.</t>
 
 <t>This specification follows the URI's intention of the userinfo field,
 and prescribes copying its value into the User header.  It will however
@@ -223,11 +240,11 @@ remove anything from a colon onward, to match the portion of userinfo
 that is to be rendered.</t>
 
 <t>Both the general userinfo format and the removal of anything starting
-from a colon allow the derivation of an empty string value for the User
-header, which is indeed permitted.  Servers may interpret this empty
+from a colon may lead to an empty string value for the User header, as
+special case that is indeed permitted.  Servers may interpret this empty
 User header as they see fit; it may be a default page, to be used for
 URIs that expect a user name need to be completed.  Or, after client
-authentication, all reachable user-specific URIs may be listed.</t>
+authentication, it may list user resources under that credential.</t>
 
 </section>
 
@@ -291,7 +308,7 @@ requests for the target URI.</t>
 run on top of the HTTP stack in a server:
 <list style="hanging" hangIndent="6">
 <t hangText="LOCAL_USER">gives the HTTP User header value
-	after grammar checking and percent-decoding.  Like the customary
+	after syntax checking and percent-decoding.  Like the customary
 	variables HTTP_HOST and PATH_INFO, this specifies the
 	resource being requested.  The HTTP_USER header does not
 	describe the identity of the client-side user, which usually
@@ -304,14 +321,13 @@ run on top of the HTTP stack in a server:
 
 <t>This section is informative.</t>
 
-<t>The user name in a URI refines the resource selection process on a host,
-but it is easily confused with the orthogonal concept of
-authentication.  Below is an example to demonstrate how these
-concepts intuitively relate, but only as the result of access control, which
-is a local choice in the server configuration
-rather than a specification-enforced connection.
-By demonstrating group access, the example shows a flexible model
-that derives from this orthogonality of concepts.</t>
+<t>The resource user in a URI refines the server's resource name space,
+and if the server is willing it can distinguish this user from the one
+who authenticates for it.  The example below demonstrates the added
+power of treating these user concepts as separate to construct an
+advanced pattern of use where an individual user accesses a group
+resource.  The binding between the group resource to member authentication
+builds on access control lists.</t>
 
 <t>John and Mary both work at the Sales department of Example, Inc and
 John has written a document that he wants Mary to review.  Mary opens a
@@ -370,9 +386,11 @@ Content-Type: text/html
 ]]></artwork></figure>
 Mary clicks on the link to /docs/review.cgi?docid=123 and her user agent
 sees a relative reference with no authority component, so this is
-again reused from the referring URI.  The new URI therefore becomes
-https://sales@example.com/docs/review.cgi?docid=123 for which the user
-agent sends:
+again reused from the referring URI.  The new URI is
+https://sales@example.com/docs/review.cgi?docid=123 
+with same root https://sales@example.com
+for which Mary has established credentials,
+so the same realm can be tried.  The user agent therefore sends:
 <figure><artwork><![CDATA[
 GET /docs/review.cgi?docid=123 HTTP/1.1
 Host: example.com
