@@ -452,7 +452,7 @@ therefore need some care for backward compatibility support.</t>
 
 <t>The compatibility can be guaranteed for host names that always
 require a User header; such resources may be described with a URI holding
-a present but empty userinfo field.  Failure to send a User header to
+a (possibly empty) userinfo field.  Failure to send a User header to
 such resources when the URI holds one can be assumed to have originated
 from a user agent that fails to support it.  When an offer for Basic authentication
 is presented, it may be interpreted as the conflated approach to userinfo, and
