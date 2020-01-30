@@ -284,6 +284,21 @@ requests for the target URI.</t>
 
 </section>
 
+<section title="HTTP User Environment Variable" anchor="envvar">
+
+<t>The following variable SHOULD be passed to applications that
+run on top of the HTTP stack in a server:
+<list style="hanging" hangIndent="6">
+<t hangText="LOCAL_USER">gives the HTTP User header value
+	after grammar checking and percent-decoding.  Like the customary
+	variables HTTP_HOST and PATH_INFO, this specifies the
+	resource being requested.  The HTTP_USER header does not
+	describe the identity of the client-side user, which usually
+	lands in a variable REMOTE_USER after authentication.</t>
+</list></t>
+
+</section>
+
 <section title="Orthogonality of Authentication (Example)" anchor="ortho">
 
 <t>This section is informative.</t>
@@ -420,21 +435,6 @@ this new, more refined resource addressing model.</t>
 <?rfc include="reference.RFC.7542.xml"?>
 </references>
 
-
-<section title="HTTP User Environment Variable" anchor="envvars">
-
-<t>The following variable SHOULD be passed to applications that
-run on top of the HTTP stack in a server:
-<list style="hanging" hangIndent="6">
-<t hangText="LOCAL_USER">gives the HTTP User header value
-	after grammar checking and percent-decoding.  Like the customary
-	variables HTTP_HOST and PATH_INFO, this specifies the
-	resource being requested.  The HTTP_USER header does not
-	describe the identity of the client-side user, which usually
-	lands in a variable REMOTE_USER after authentication.</t>
-</list></t>
-
-</section>
 
 <section title="Compatibility with Basic Authentication" anchor="compat.basic">
 
