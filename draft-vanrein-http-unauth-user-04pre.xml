@@ -13,7 +13,7 @@
 
 <front>
 
-	<title abbrev="HTTP user@">User Names for HTTP Resources</title>
+	<title abbrev="HTTP user@">HTTP Resources with User Names</title>
 
 	<author initials="R" surname="Van Rein" fullname="Rick van Rein">
 		<organization>InternetWide.org</organization>
@@ -32,10 +32,10 @@
 	<date day="26" month="January" year="2200"/>
 
 	<abstract>
-	<t>Most protocols support users under domain names, but HTTP does
+	<t>Many protocols support users under domain names, but HTTP does
 	not.  Usage patterns in the wild do suggest a desire to have this
 	facility.  This specification defines a header for user names,
-	orthogonal to authentication and authorisation concerns.</t>
+	orthogonal to authenticated identities.</t>
 	</abstract>
 
 </front>
@@ -76,30 +76,35 @@ CHANGES FROM 00 TO 01:
 
 <section title="Introduction" anchor="intro">
 
-<t>Most protocols support Network Access Identifiers
-<xref target="RFC7542"/> like john@example.com to
+<t>Many protocols support global identities like john@example.com to
 identify users like john under domains such as example.com.  The URI format
 for HTTP can express [Section 2.7.1 of <xref target="RFC7230"/>]
-such authority sections, and many online applications
-seem to want to address individual users, but HTTP URIs do not usually
-express user names.  This specification therefore introduces
+such authority components, with an intended interpretation of locating a
+user-specific resources.  Many online applications
+publish about individual users, but there is no standard in HTTP to
+express user names to address them.  This specification therefore introduces
 a header "User", in close parallel to the "Host" header.</t>
 
-<t>User names in HTTP are currently only used for authentication.  The userinfo
-field in URIs has been used to carry such user names, but the formal intention
-of the userinfo field in URIs is to specify a resource name space,
-not an (authenticated) user identity.  By introducing
-a new header field, this specification allows authentication to be orthogonal
-to resource name space selection.</t>
+<t>Some current URIs for HTTP have used the userinfo field in the URI
+to express an authentication user, in spite of the intended use
+to refine the authority information.  This conflates the user part
+of the resource with the (authenticated) client-side identity.  This
+specification makes authentication and resource user two orthogonal concepts,
+and specifies a clear relation to the URI format.</t>
 
-<t>Orthogonality generalises the user concepts without forcing them to be
-separate.  Servers can be configured with resource users that demand
-authentication with the same client name; they may also accept authentication
-as an alias to a resource user.  Clients may accept authentication requests
+<!--
+auth-part: should mean authority, but reads as authentication...
+-->
+
+<t>Orthogonality yields a generalisation, but voluntary conflation of the user
+concepts remains possible, and may even be useful as default behaviour.
+Servers can be configured with resource users that demand
+authentication with the same client name; they may even accept authentication
+as a bypass to a resource user.  Clients may accept authentication requests
 and use their submitted resource user as a hint to the authentication user.</t>
 
-<t>The value of orthogonal users lies in more advanced cases, of which these
-approaches are merely a specific form.  Servers may welcome members to
+<t>Orthogonal concepts can however be untied to support advanced use cases, of
+which these practices are a specific form.  Servers may welcome members to
 authenticate against a shared/group resource.  Clients treat the resource
 user as part of the realm identity and can use it to locate the customary
 authentication user for that realm.  Credentials need not be tied to the
@@ -126,7 +131,7 @@ https://www.rfc-editor.org/errata/eid5964</t>
 -->
 
 <t>The purpose of this specification is to define clear meaning for HTTP URIs
-with a userinfo component.</t>
+with a userinfo component and their mapping to HTTP.</t>
 
 </section>
 
@@ -210,51 +215,53 @@ MAYBE:
 </section>
 
 
-<section title="URI User Information" anchor="uri">
+<section title="URI with User Information" anchor="uri">
 
 <t>This section is informative.</t>
 
-<t>The extension of resource naming with a user is a general concept
-of the URI format and is already used for addressing users with SMTP,
+<t>The use of a user name in the authority component of a URI is a general
+concept, already used for addressing users with SMTP,
 SIP, XMPP and many other protocols.  By allowing users in HTTP resource
 names, better crossover of identities with these protocols can be
 achieved.  Unlike server-specific user name mapping conventions, the specified
-meaning of URI userinfo enables such crossovers to be automated.</t>
+generic meaning of URI userinfo as part of the authority information enables
+such crossovers to be automated.</t>
 
-<t>There is a current practice of storing an authentication name in
-the userinfo portion of a URI.  This is useful because it allows
-allows sending of Basic authentication in the first request; Basic is
-especially suited for this because it does not incorporate a server-sent
-challenge.</t>
+<t>There is a current practice of writing an authentication name in
+the userinfo portion of a URI.  This can be useful if it adds
+Basic authentication to the first request; Basic can do
+this because it does not incorporate a server-sent challenge.</t>
 
-<t>Having never been standardised, the mechanistic side of this is highly
-diverse, and far from portable between browsers.  In other words, URIs
-cannot be spread freely and their usage pattern is dedicated for the client
+<t>Having never been standardised, the mechanistic side of this practice is
+highly diverse, and URIs are far from portable between browsers or even the
+various places where they occur within one browser.  As a result, these URIs
+cannot be spread freely and their usage pattern is dedicated to the client
 software in use.  On grounds of this immobility, it would have been sufficient
-to not break <xref target="compat.basic"/> this practice.  What this proposal
-does, however, is completely support this pattern as a special case.</t>
+to not break this practice.  What this specification does is completely
+support [<xref target="compat.basic"/>] this pattern as a special case.</t>
 
 <t>This specification follows the URI's intention of the userinfo field,
 and prescribes copying its value into the User header.  It will however
-remove anything from a colon onward, to match the portion of userinfo
-that is to be rendered.</t>
+remove anything from a colon onward, to suppress the portion of userinfo
+that is prescribed to not be rendered.</t>
 
 <t>Both the general userinfo format and the removal of anything starting
-from a colon may lead to an empty string value for the User header, as
-special case that is indeed permitted.  Servers may interpret this empty
-User header as they see fit; it may be a default page, to be used for
-URIs that expect a user name need to be completed.  Or, after client
-authentication, it may list user resources under that credential.</t>
+from a colon may lead to an empty string as the User header value.
+Servers may interpret this empty User header as they see fit;
+the underlying resource may be a default page, for example one
+that asks for a user name to redirect to.  After client
+authentication, such a page may list user names that
+would be accessible.</t>
 
 </section>
 
 
-<section title="Protocol Handling of HTTP User" anchor="protocol">
+<section title="Protocol Handling of URI and User" anchor="protocol">
 
-<t>User agents SHOULD render userinfo in the target URI
+<t>User agents are supposed to render userinfo in the target URI
 (up to the first colon ":" (U+003a)
 if it contains any [Section 3.2.1 of <xref target="RFC3986"/>])
-though it may be helpful if it stands out graphically
+where it may be helpful if it stands out graphically
 [Section 7.6 of <xref target="RFC3986"/>].
 User agents SHOULD NOT remove userinfo from the target URI.</t>
 
@@ -269,12 +276,12 @@ Transparent intermediates such as proxies and caches MUST NOT add,
 remove or modify the User header.  The CONNECT method and Host header
 both exclude this information, so the User header complements them.</t>
 
-<t>Servers MAY ignore the User header
+<t>Compliant servers MAY ignore the User header
 [Section 3.2.1 of <xref target="RFC7230"/>] and they MAY impose a more
 restrictive grammar (like a NAI's utf8-username <xref target="RFC7542"/>)
 than the URI syntax before further processing it.  When they do use it,
 the Effective Request URI [Section 5.5 of <xref target="RFC7230"/>]
-is constructed with the userinfo and the "@" at delimiter (U+0040)
+MUST be constructed with the userinfo and the "@" at delimiter (U+0040)
 prefixed to the host name and optional port.  Realms are specific to
 an authority section [Section 2.2 of <xref target="RFC7235"/>]
 and so a realm never spans across different userinfo values.</t>
@@ -291,18 +298,16 @@ the Vary header [Section 7.1.4 of <xref target="RFC7231"/>] MUST
 be generated by the server in the matching response, and the header
 MUST either be a single "*" star (U+002a) or list the "User" name,
 for all responses whose processing was influenced by the
-User header.  This requirement has no bearing on server software and
+User header.  This requirement has no bearing on software and
 configurations that ignore the User header.</t>
 
-<t>During redirects or other traversals to (relative) HTTP URIs, the
-user name MUST be overwritten when the new URI specifies an authority
-component, and it MUST be kept otherwise.  User agents MUST send any
-non-empty userinfo sub-components as the value of the User header in
-requests for the target URI.</t>
+<t>During redirects or other traversals to relative HTTP URIs, compliant
+user agents MUST overwrite the userinfo in the target URI when the new URI
+specifies an authority component, and MUST keep it otherwise.</t>
 
 </section>
 
-<section title="HTTP User Environment Variable" anchor="envvar">
+<section title="Environment Variable with Local User" anchor="envvar">
 
 <t>The following variable SHOULD be passed to applications that
 run on top of the HTTP stack in a server:
@@ -321,17 +326,17 @@ run on top of the HTTP stack in a server:
 
 <t>This section is informative.</t>
 
-<t>The resource user in a URI refines the server's resource name space,
-and if the server is willing it can distinguish this user from the one
-who authenticates for it.  The example below demonstrates the added
-power of treating these user concepts as separate to construct an
-advanced pattern of use where an individual user accesses a group
-resource.  The binding between the group resource to member authentication
-builds on access control lists.</t>
+<t>The authority user in a URI refines the server's resource name space,
+and the server is free to distinguish this resource user from an
+authenticated client identity.  The example below demonstrates the expressive
+power gained by treating these user concepts as separate, in an advanced
+pattern of use in which an individual user accesses a group resource.
+This advanced binding between the group resource and an authenticated client
+can build on access control lists.</t>
 
 <t>John and Mary both work at the Sales department of Example, Inc and
 John has written a document that he wants Mary to review.  Mary opens a
-link to the document name space under the sales account at
+link to the document name space under the shared sales account at
 https://sales@example.com/docs and her user agent sends:
 <figure><artwork><![CDATA[
 GET /docs HTTP/1.1
@@ -339,7 +344,7 @@ Host: example.com
 User: sales
 ]]></artwork></figure>
 The server redirects to add a slash, and when this is specific to
-the sales account, it must inform caches about this with the Vary header:
+the sales name space, it must inform caches about this with the Vary header:
 <figure><artwork><![CDATA[
 HTTP/1.1 301 Moved Permanently
 Location: /docs/
@@ -461,35 +466,36 @@ this new, more refined resource addressing model.</t>
 
 <t>Basic authentication is regularly used as a quick and easy HTTP
 authentication technique.  Several user agents continue to support it with
-the "user:password@" URI prefix to a hostname, despite its deprecation.
+the "user:password@" URI prefix to a hostname, despite its deprecation
+[Section 3.2.1 of <xref target="RFC3986"/>].
 This specification imposes no new constraints on this practice; it merely
-prescribes to send the User header field, possibly in addition to an
-existing pattern of Basic authentication.</t>
+prescribes to send the User header field, and leaves it to client software
+whether it also sends Basic authentication.</t>
 
-<t>The mapping from resource names to actual resources is the prerogative
+<t>The mapping from authority names to resources is the prerogative
 of the server.  A server supportive of resource selection through Basic
 authentication could ignore the User header field and still comply with
 this specification.  A server that does recognise the User header field would
 use it to locate a resource, before deciding about access control to that
-resource; this may raise authentication requirements, and select schemes
+resource; it may subsequently require authentication, and select schemes
 that could be supported.  At this time, it may or may not welcome an added
-Basic authentication attempt.  All this is server configuration.</t>
+Basic authentication attempt.  All this depends on server configuration.</t>
 
 <t>This flexibility can support a transition from Basic authentication to
-User header fields on the server, and allows client software to follow suit by
-first adding the User header, and later dropping the deprated pattern with
-"user:password" in the userinfo component of a URI.  Server administrators
-have a free choice to gradually phase out clients or client configurations
-that adhere to older and possibly deprecated usage patterns.</t>
+User headers on the server, and allows client software to also migrate by
+first adding the User header, and later supporting the advanced uses by
+allowing differentiation between resource user and authentication user.
+Server administrators have a free choice whether to gradually phase out
+older clients or to continue to support them.</t>
 
 <t>Sending both the User header and Basic authentication is only to be
-expected from user agents who conflate resource userinfo with authentication
+expected from user agents who conflate authority userinfo with authentication
 user.  Such user agents will be less flexible, and will not be able to
 support more advanced usage patterns that separate these concepts, such as
 shared/group resources addressed with the User header field and, when desired,
 authentication through an independent set of headers.  Among the tools to
-drive such patterns could be the negotiation of more advanced mechanisms,
-even just Digest authentication.</t>
+drive separate authentication could be the negotiation of more advanced
+mechanisms, even just Digest authentication.</t>
 
 </section>
 
@@ -504,28 +510,24 @@ method used.  The main concern is now if it will be addressed in the same
 manner in every case.  This depends on the user agents.</t>
 
 <t>Development environments make sending the User header field simple,
-and so application support is as easy as the applications are flexible.
-Binary user agents and especially ones that may lag behind in updates
-therefore need some care for backward compatibility support.</t>
+so application support is as easy as the applications are flexible.
+Binary user agents and ones that may lag behind in updates
+do however call for backward compatibility support of consistent
+translation to resources.</t>
 
-<t>The compatibility can be guaranteed for host names that always
+<t>Backward compatibility can be guaranteed for host names that always
 require a User header; such resources may be described with a URI holding
 a (possibly empty) userinfo field.  Failure to send a User header to
 such resources when the URI holds one can be assumed to have originated
 from a user agent that fails to support it.  When an offer for Basic authentication
 is presented, it may be interpreted as the conflated approach to userinfo, and
-treated as a substitute for the User header.  If neither is offered, an
-error may be reported, or control redirected to another means of selecting
-a resource user.</t>
+treated as a substitute for the User header.  If neither is offered, then an
+error may be reported or control redirected to another means of selecting
+a resource user, perhaps through an alternate local naming convention.</t>
 
-<t>This indicates that the server is able to detect possible problems,
-and can avoid accidentally binding a request to an unintended resource
+<t>This indicates that the server is able to detect inconsistent tranlation
+risks, and avoid accidentally binding a request to an unintended resource
 as a result of a missing User header.</t>
-
-<t>Under the fallback, resources gain an alias under a local convention.
-The URI form with a userinfo field has more semantics, and offers better
-interpretation options to clients, so among aliases this is the form that
-should be treated as the canonical URI.</t>
 
 </section>
 
@@ -538,14 +540,15 @@ prerogative of their server.  A conservative cache design might insert
 the User header value in request URIs, but lose the capability of
 seeing the equivalence of a resource as perceived by the server.
 The inclusion of the name "User" in the Vary header of the response
-provides a more accurate cache instruction.</t>
+adds explicit non-equivalence information, and thereby provides a more
+accurate cache controlling instruction.</t>
 
 <t>Whether a result is "private" is independent of the User header, as that
 only signifies a refinement of the resource name space on the server.
 The rules that signify authentication as default indicator of privacy
-is orthogonal to the User header.  This is one reason why it is good
-to separate resource user and authentication user; Basic authentication
-with no password may be used to select resources, but it reduces cache performance.</t>
+is orthogonal to the User header.  Independent inclusion of Basic
+authentication may still invalidate caching, but not as a result of this
+specification.</t>
 
 </section>
 
