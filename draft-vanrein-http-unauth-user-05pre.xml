@@ -33,10 +33,12 @@
 
 	<abstract>
 	<t>Many protocols support users under domain names, but HTTP does
-	not.  Usage patterns in the wild do suggest a desire to have this
-	facility.  This specification defines a header for user names,
-	orthogonal to authenticated identities, resulting in a more powerful
-	identity model for HTTP.</t>
+	not.  <!-- Usage patterns in the wild do suggest a desire to have this
+	facility. -->  This specification defines a header for user names,
+	independent of authenticated identities, and a link to userinfo in
+	HTTP URIs.  This intergrates naturally with HTTP, and results in a
+	more refined resource authentication model, in support of advanced
+	usage scenarios.</t>
 	</abstract>
 
 </front>
@@ -45,6 +47,9 @@
 
 CHANGES FROM 04 TO 05:
  * Cache performance improves when moving from Basic auth to User
+ * Consistent phrasing: resource user / client identity
+ * Added a note to draft readers about SXOVER and KXOVER
+ * Removed any remarks about rendering; that's another specialty
 
 CHANGES FROM 03 TO 04:
  * User header is not all of userinfo, but stops at a colon
@@ -81,39 +86,48 @@ CHANGES FROM 00 TO 01:
 <section title="Introduction" anchor="intro">
 
 <t>Many protocols support global identities like john@example.com to
-identify users like john under domains such as example.com.  The URI format
+represent users like john under domains such as example.com.  The URI format
 for HTTP can express [Section 2.7.1 of <xref target="RFC7230"/>]
-such authority components, with an intended interpretation of locating
+such authority components (with a userid named "resource user" herein),
+with an intended interpretation of locating
 user-specific resources.  Many online applications
-publish about individual users, but there is no standard in HTTP to
-express user names to address them.  This specification therefore introduces
-a header "User", in close parallel to the "Host" header.</t>
+publish resources on individual users, but there is no standard in HTTP to
+express user names to address them.  This specification adds that through
+a header "User", closely paralleling the "Host" header.</t>
 
 <t>Some current URIs for HTTP have used the userinfo field in the URI
-to express an authentication user, in spite of the intended use
-to refine the authority information.  This conflates the user part
-of the resource with the (authenticated) client-side identity.  This
-specification makes authentication and resource user two orthogonal concepts,
-and specifies a clear relation to the URI format.</t>
+to express an authentication user (named "client identity" herein),
+in spite of the intended use to refine the authority information.
+This conflates the resource user with the client identity.
+This specification defines client identity and resource user as
+orthogonal concepts, and specifies a clear relation to the URI format.</t>
 
 <!--
 auth-part: should mean authority, but reads as authentication...
 -->
 
-<t>Orthogonality yields a generalisation, but voluntary conflation of the user
-concepts remains possible, and may even be useful as default behaviour.
+<t>Orthogonality yields a generalisation, but voluntary conflation of
+client identity and resource user
+remains possible.  In fact, software may use it as default behaviour.
 Servers can be configured with resource users that demand
-authentication with the same client name; they may even accept authentication
-as a bypass to a resource user.  Clients may accept authentication requests
-and use their submitted resource user as a hint to the authentication user.</t>
+authentication with the same client identity; they may even accept
+authentication with a client identity as a bypass to the same resource user.
+Clients may accept authentication requests
+and use the resource user from the target URI as a hint to the expected
+client identity.</t>
 
-<t>Orthogonal concepts can however be untied to support advanced use cases, of
-which these practices are a specific form.  Servers may welcome members to
-authenticate against a shared/group resource.  Clients treat the resource
-user as part of the realm identity and can use it to locate the customary
-authentication user for that realm.  Credentials need not be tied to the
-server, so it is possible to "bring your own identity" by facilitating
-realm crossover for credentials.</t>
+<t>Orthogonal concepts can however be untied to support advanced use cases.
+Servers may use resource users to identify groups and welcome members to
+authenticate against such a group resource.  
+While authenticating, client identities can be drawn
+from another domain, so it is possible to "bring your own identity" as long
+as the server can rely on a mechanism of realm crossover for credentials.</t>
+
+<t>TOBEREMOVED: We have designed two mechanisms for realm crossover in
+other specifications; SXOVER is a SASL mechanism for realm crossover via a
+Diameter backend, which can be provisioned to user agents through HTTP SASL;
+KXOVER is a Kerberos mechanism that is taken care of in the KDC.  Both rely
+on DNSSEC, DANE and TLS.</t>
 
 <!-- MOVED DOWN TO SEPARATE SECTIONS
 <t>When user agents support (Basic and Digest) authentication through URIs,
@@ -142,14 +156,14 @@ https URIs and their userinfo mappings to HTTP.</t>
 
 <section title="Definition of the HTTP User Header" anchor="header">
 
-<t>The "User" header field provides the user aspect of the requested
+<t>The "User" header carries a resource user as part of the requested
 authority, and therefore refines the resource name scope.
-The value can be inserted by software or be <!-- taken
+The value can be explicitly inserted <!-- by software --> or be <!-- taken
 from the visible portion of the userinfo component
 [Section 3.2 of <xref target="RFC3986"/>]
 of -->
-derived from the userinfor component of
-the target URI but it MUST NOT include a ":" colon (U+003a) character.</t>
+the user in the userinfo component of
+the target URI.</t>
 
 <t>The User header value holds
 precisely one value with the following ABNF grammar:
@@ -159,7 +173,8 @@ User = *( unreserved / pct-encoded / sub-delims )
 The referenced non-terminals are as for URIs <xref target="RFC3986"/>
 and can be directly included in the quoted-string header form; a plain token
 cannot express "(", ")", "=", ";" and "," without escaping
-[Section 3.2.6 of <xref target="RFC7230"/>].</t>
+[Section 3.2.6 of <xref target="RFC7230"/>].
+Note that the header MUST NOT include a ":" colon (U+003a) character.</t>
 
 <!--
 
@@ -222,36 +237,38 @@ MAYBE:
 </section>
 
 
-<section title="URI with User Information" anchor="uri">
+<section title="URI with Resource User" anchor="uri">
 
 <t>This section is informative.</t>
 
-<t>The use of a user name in the authority component of a URI is a general
+<t>Naming a user in the authority component of a URI is a general
 idea, already used for addressing users with SMTP,
-SIP, XMPP and many other protocols.  By allowing users in HTTP resource
-names, better crossover of identities with these protocols can be
+SIP, XMPP and many other protocols.  The addition of users in the URIs for HTTP,
+a refined resource name is provided,
+and better crossover of identities with these protocols can be
 achieved.  Unlike server-specific user name mapping conventions, the specified
 generic meaning of URI userinfo as part of the authority information enables
 such crossovers to be automated.</t>
 
-<t>There is a current practice of writing an authentication name in
-the userinfo portion of a URI.  This can be useful if it adds
+<t>There is a current practice of writing a client identity in
+the userinfo portion of a URI.  This is considered useful if it adds
 Basic authentication to the first request; Basic can do
 this because it does not incorporate a server-sent challenge.</t>
 
 <t>Having never been standardised, the mechanistic side of this practice is
 highly diverse, and URIs are far from portable between browsers or even the
 various places where they occur within one browser.  As a result, these URIs
-cannot be spread freely and their usage pattern is dedicated to the client
-software in use.  On grounds of this immobility, it would be sufficient
-to not break this practice.  What this specification does is completely
+cannot be distributed freely and their usage pattern is dedicated to the client
+software in use.  This specification does completely
 support [<xref target="compat.basic"/>] this pattern as a special case.</t>
 
 <t>This specification follows the URI's intention of the userinfo field,
 and prescribes copying its value into the User header.  It will however
 remove anything from a colon onward, to suppress the portion of userinfo
-that is prescribed to not be rendered.</t>
+that should not be rendered [Section 3.2.1 of <xref target="RFC3986"/>]
+as well as a colon hinting at an empty password.</t>
 
+<!-- Drop: Not saying anything...
 <t>Both the general userinfo format and the removal of anything starting
 from a colon may lead to an empty string as the User header value.
 Servers may interpret this empty User header as they see fit;
@@ -259,22 +276,33 @@ the underlying resource may be a default page, for example one
 that asks for a user name to redirect to.  After client
 authentication, such a page may list user names that
 would be accessible.</t>
+-->
 
 </section>
 
 
 <section title="Protocol Handling of URI and User Header" anchor="protocol">
 
-<t>Compliant user agents MUST render userinfo in the target URI
+<!--
+Drop rendering suggestions.  This specification deals with URIs and
+leaves GUIs to the specialists (who also see other, possibly conflicting
+concerns.
+-->
+
+<!--
+<t>Compliant user agents MUST render userinfo from the target URI
 (up to but excluding the first colon ":" (U+003a)
 if it contains any [Section 3.2.1 of <xref target="RFC3986"/>])
-where it may be helpful if it stands out graphically
+along with the remainder of the authority section,
+where it is considered helpful if the userinfo stands out graphically
 [Section 7.6 of <xref target="RFC3986"/>].</t>
+-->
 
-<t>Compliant user agents MUST pass userinfo in the target URI
+<t>Compliant user agents MUST pass userinfo from the target URI
 (up to but excluding the first colon ":" (U+003a) if it contains any) as a User
 header field if, and only if, the target URI contains a userinfo part.
-They MUST NOT remove userinfo from the target URI during this process.</t>
+They MUST NOT remove userinfo from the target URI during this process.
+Empty userinfo MUST be treated as any other userinfo string.</t>
 
 <t>The User header MAY appear in requests and MUST NOT occur in responses.
 <!-- also not in trailers [Section 4.1 of <xref target="RFC7230"/>].  -->
@@ -298,9 +326,8 @@ into the Effective Request URI, the server would map consistently to
 resources.  It is merely enabled to include a User header as an
 extra input variable to this mapping to resources.</t>
 
-<t>HTTP caches <xref target="RFC7234"/> derive no privacy or
-security concerns from the User header, but they do need to
-differentiate requests based on it.  To accommodate that,
+<t>HTTP caches <xref target="RFC7234"/> need to
+differentiate requests based on the User header.  To accommodate that,
 the Vary header [Section 7.1.4 of <xref target="RFC7231"/>] MUST
 be generated by the server in the matching response, and the header
 MUST either be a single "*" star (U+002a) or list the "User" name,
@@ -308,9 +335,42 @@ for all responses whose processing was influenced by the
 User header.  This requirement has no bearing on software and
 configurations that ignore the User header.</t>
 
-<t>During redirects or other traversals to relative HTTP URIs, compliant
-user agents MUST overwrite the userinfo in the target URI when the new URI
+<t>Compliant user agents MUST NOT change the support of the User header
+depending on the source of a reference; be it a redirect form a server,
+a click in a hyperlinked document, a script or a part of a browser interface
+or an external source.  When processing URIs that are relative to
+the context of a previous URI, compliant
+user agents MUST replace the userinfo in the target URI when the new URI
 specifies an authority component, and MUST keep it otherwise.</t>
+
+</section>
+
+<section title="The Logic of User in HTTP" anchor="logical">
+
+<t>This section is informative.</t>
+
+<t>HTTP structures a number of things around the authority component of
+its URIs, and the addition of resource users in this position form a
+logical extension.  This leads to improved user experiences.</t>
+
+<t>Realms are identified by a scheme, the authority and a descriptive string
+passed with authentication challenges.  Clients can use this combination to
+decide about a user identity to present to a server; it is common for
+people to have roles relative to one another, and the standard definition
+of realm identity allows the user agent to select an identity to match
+the role for the remote party.  This can even be used for credentials
+passed in the TLS handshake, such as X.509 certificates.</t>
+
+<t>A similar logic is found for robot exclusion files.  They are found
+at a path /robots.txt for a given scheme and authority.  The inclusion
+of the resource user in the authority enables personal pages to each
+have their own robot exclusion file.</t>
+
+<t>More futuristic would be a suggestion that a server may relay connections
+to user-operated web servers on the basis of the resource user; this is once
+again an intended use of the authority field.  It may not be possible under
+current specifications yet, but HTTP with User header can support it as
+soon as TLS can.</t>
 
 </section>
 
@@ -320,11 +380,10 @@ specifies an authority component, and MUST keep it otherwise.</t>
 run on top of the HTTP stack in a server:
 <list style="hanging" hangIndent="6">
 <t hangText="LOCAL_USER">gives the HTTP User header value
-	after syntax checking and percent-decoding.  Like the customary
-	variables HTTP_HOST and PATH_INFO, this specifies the
-	resource being requested.  The HTTP_USER header does not
-	describe the identity of the client-side user, which usually
-	lands in a variable REMOTE_USER after authentication.</t>
+	after syntax checking and percent-decoding.  If used at all,
+	it MUST be treated as a resource user.  This header does not
+	describe the authenticated client identity, which is usually
+	passed in a variable REMOTE_USER.</t>
 </list></t>
 
 </section>
@@ -333,18 +392,18 @@ run on top of the HTTP stack in a server:
 
 <t>This section is informative.</t>
 
-<t>The authority user in a URI refines the server's resource name space,
-and the server is free to distinguish this resource user from an
-authenticated client identity.  The example below demonstrates the expressive
-power gained by treating these user concepts as separate, in an advanced
-pattern of use in which an individual user accesses a group resource.
-This advanced binding between the group resource and an authenticated client
-can build on access control lists.</t>
+<t>This section provides an example of an advanced use case.  Not only does
+this use the resource user to locate a shared server account, it is also
+distinct from the client identity used during authentication.  Whether the
+client identity is welcomed by the resource user is determined with an
+access control list.  Furthermore, this example shows the logic of a
+realm identity that involves the resource user in finding the right
+client identity to the contacted resource user.</t>
 
-<t>John and Mary both work at the Sales department of Example, Inc and
+<t>John and Mary are both part of the Sales group of Example, Inc and
 John has written a document that he wants Mary to review.  Mary opens a
-link to the document name space under the shared sales account at
-https://sales@example.com/docs and her user agent sends:
+link to the document name space under the group's shared account "sales"
+at https://sales@example.com/docs and her user agent sends:
 <figure><artwork><![CDATA[
 GET /docs HTTP/1.1
 Host: example.com
@@ -375,7 +434,8 @@ Vary: User
 ]]></artwork></figure>
 Mary's user agent needs to collect credentials, and may hint at the user
 name "sales" from the URI but, this being the name of a shared resource,
-Mary has no fitting credentials and instead authenticates as "mary":
+Mary has no fitting credentials and instead authenticates with client
+identity "mary":
 <figure><artwork><![CDATA[
 GET /docs/ HTTP/1.1
 Host: example.com
@@ -383,7 +443,7 @@ User: sales
 Authorization: KnockKnock realm="Documents", user="mary", ...
 ]]></artwork></figure>
 At some point, the server accepts Mary's authentication and
-proceeds to access control.  This phase checks if user "mary" may
+proceeds to access control.  This phase checks if client identity "mary" may
 access realm "Documents" of "https://sales@example.com" by checking
 that Mary works for the Sales department.  Once this is assured,
 the server returns the requested document list:
@@ -401,8 +461,8 @@ sees a relative reference with no authority component, so this is
 again reused from the referring URI.  The new URI is
 https://sales@example.com/docs/review.cgi?docid=123 
 with same root https://sales@example.com
-for which Mary has established credentials,
-so the same realm can be tried.  The user agent therefore sends:
+for which Mary has an authenticated client identity,
+so the same "Documents" realm can be tried.  The user agent therefore sends:
 <figure><artwork><![CDATA[
 GET /docs/review.cgi?docid=123 HTTP/1.1
 Host: example.com
@@ -410,8 +470,9 @@ User: sales
 Authorization: KnockKnock realm="Documents", user="mary", ...
 ]]></artwork></figure>
 After access control, the server starts the CGI script with environment
-variables LOCAL_USER=sales and REMOTE_USER=mary of which only the latter
-is an authenticated result.  The script interprets the LOCAL_USER as a
+variables LOCAL_USER=sales and REMOTE_USER=mary for the resource user and
+authenticated client identity, respectively.
+The script interprets the LOCAL_USER as a
 group account and the REMOTE_USER as the acting group member, and returns
 a page for review of the document and Mary can get to work.</t>
 
@@ -420,7 +481,7 @@ a page for review of the document and Mary can get to work.</t>
 
 <section title="IANA Considerations" anchor="iana">
 
-<t>IANA adds the following entry to the Message Headers registry:
+<t>Please add the following entry to the Message Headers registry:
 <figure><artwork><![CDATA[
 Header Field Name   Template   Protocol   Status    Reference
 ------------------  ---------  ---------  -------   ----------
@@ -476,8 +537,8 @@ authentication technique.  Several user agents continue to support it with
 the "user:password@" URI prefix to a hostname, despite its deprecation
 [Section 3.2.1 of <xref target="RFC3986"/>].
 This specification imposes no new constraints on this practice; it merely
-prescribes to send the User header field, and leaves it to client software
-whether it also sends Basic authentication.</t>
+prescribes sending the User header field, and leaves it to client software
+whether to also sends Basic authentication.</t>
 
 <t>The mapping from HTTP requests to resources is the prerogative
 of the server.  A server supportive of resource selection through Basic
@@ -491,18 +552,16 @@ Basic authentication attempt.  All this depends on server configuration.</t>
 <t>This flexibility can support a transition from Basic authentication to
 User headers on the server, and allows client software to also migrate by
 first adding the User header, and later supporting the advanced uses by
-allowing differentiation between resource user and authentication user.
+allowing differentiation between resource user and client identity.
 Server administrators have a free choice whether to gradually phase out
 older clients or to continue to support them.</t>
 
 <t>Sending both the User header and Basic authentication is only to be
-expected from user agents who conflate authority userinfo with authentication
-user.  Such user agents will be less flexible, and will not be able to
+expected from user agents who conflate resource user with client identity.
+Such user agents will be less flexible, and will not be able to
 support more advanced usage patterns that separate these concepts, such as
 shared/group resources addressed with the User header field and, when desired,
-authentication through an independent set of headers.  Among the tools to
-drive separate authentication could be the negotiation of more advanced
-mechanisms, even just Digest authentication.</t>
+authentication through a set of other headers.</t>
 
 </section>
 
@@ -513,7 +572,7 @@ mechanisms, even just Digest authentication.</t>
 <t>Whether and how the User header is interpreted is the prerogative of
 the server.  The server will translate resources in the same manner when
 provided with the same User header, and may do so without regard for the
-method used.  The main concern is now if it will be addressed in the same
+HTTP method.  The main concern is now if it will be addressed in the same
 manner in every case.  This depends on the user agents.</t>
 
 <t>Development environments make sending the User header field simple,
@@ -523,10 +582,10 @@ do however call for backward compatibility support of consistent
 translation to resources.</t>
 
 <t>Backward compatibility can be guaranteed for host names that always
-require a User header; such resources may be described with a URI holding
+require a User header; all resources would be described with URIs having
 a (possibly empty) userinfo field.  Failure to send a User header to
-such resources when the URI holds one can be assumed to have originated
-from a user agent that fails to support it.  When an offer for Basic authentication
+such resources when the URI holds userinfo indicates that the user agent
+fails to support the User header.  When an offer for Basic authentication
 is presented, it may be interpreted as the conflated approach to userinfo, and
 treated as a substitute for the User header.  If neither is offered, then an
 error may be reported or control redirected to another means of selecting
