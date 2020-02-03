@@ -1,0 +1,691 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+
+  <title>HTTP Resources with User Names</title>
+
+  <style type="text/css" title="Xml2Rfc (sans serif)">
+  /*<![CDATA[*/
+	  a {
+	  text-decoration: none;
+	  }
+      /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+      a.info {
+          /* This is the key. */
+          position: relative;
+          z-index: 24;
+          text-decoration: none;
+      }
+      a.info:hover {
+          z-index: 25;
+          color: #FFF; background-color: #900;
+      }
+      a.info span { display: none; }
+      a.info:hover span.info {
+          /* The span will display just on :hover state. */
+          display: block;
+          position: absolute;
+          font-size: smaller;
+          top: 2em; left: -5em; width: 15em;
+          padding: 2px; border: 1px solid #333;
+          color: #900; background-color: #EEE;
+          text-align: left;
+      }
+	  a.smpl {
+	  color: black;
+	  }
+	  a:hover {
+	  text-decoration: underline;
+	  }
+	  a:active {
+	  text-decoration: underline;
+	  }
+	  address {
+	  margin-top: 1em;
+	  margin-left: 2em;
+	  font-style: normal;
+	  }
+	  body {
+	  color: black;
+	  font-family: verdana, helvetica, arial, sans-serif;
+	  font-size: 10pt;
+	  max-width: 55em;
+	  
+	  }
+	  cite {
+	  font-style: normal;
+	  }
+	  dd {
+	  margin-right: 2em;
+	  }
+	  dl {
+	  margin-left: 2em;
+	  }
+	
+	  ul.empty {
+	  list-style-type: none;
+	  }
+	  ul.empty li {
+	  margin-top: .5em;
+	  }
+	  dl p {
+	  margin-left: 0em;
+	  }
+	  dt {
+	  margin-top: .5em;
+	  }
+	  h1 {
+	  font-size: 14pt;
+	  line-height: 21pt;
+	  page-break-after: avoid;
+	  }
+	  h1.np {
+	  page-break-before: always;
+	  }
+	  h1 a {
+	  color: #333333;
+	  }
+	  h2 {
+	  font-size: 12pt;
+	  line-height: 15pt;
+	  page-break-after: avoid;
+	  }
+	  h3, h4, h5, h6 {
+	  font-size: 10pt;
+	  page-break-after: avoid;
+	  }
+	  h2 a, h3 a, h4 a, h5 a, h6 a {
+	  color: black;
+	  }
+	  img {
+	  margin-left: 3em;
+	  }
+	  li {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  ol {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  ol p {
+	  margin-left: 0em;
+	  }
+	  p {
+	  margin-left: 2em;
+	  margin-right: 2em;
+	  }
+	  pre {
+	  margin-left: 3em;
+	  background-color: lightyellow;
+	  padding: .25em;
+	  }
+	  pre.text2 {
+	  border-style: dotted;
+	  border-width: 1px;
+	  background-color: #f0f0f0;
+	  width: 69em;
+	  }
+	  pre.inline {
+	  background-color: white;
+	  padding: 0em;
+	  }
+	  pre.text {
+	  border-style: dotted;
+	  border-width: 1px;
+	  background-color: #f8f8f8;
+	  width: 69em;
+	  }
+	  pre.drawing {
+	  border-style: solid;
+	  border-width: 1px;
+	  background-color: #f8f8f8;
+	  padding: 2em;
+	  }
+	  table {
+	  margin-left: 2em;
+	  }
+	  table.tt {
+	  vertical-align: top;
+	  }
+	  table.full {
+	  border-style: outset;
+	  border-width: 1px;
+	  }
+	  table.headers {
+	  border-style: outset;
+	  border-width: 1px;
+	  }
+	  table.tt td {
+	  vertical-align: top;
+	  }
+	  table.full td {
+	  border-style: inset;
+	  border-width: 1px;
+	  }
+	  table.tt th {
+	  vertical-align: top;
+	  }
+	  table.full th {
+	  border-style: inset;
+	  border-width: 1px;
+	  }
+	  table.headers th {
+	  border-style: none none inset none;
+	  border-width: 1px;
+	  }
+	  table.left {
+	  margin-right: auto;
+	  }
+	  table.right {
+	  margin-left: auto;
+	  }
+	  table.center {
+	  margin-left: auto;
+	  margin-right: auto;
+	  }
+	  caption {
+	  caption-side: bottom;
+	  font-weight: bold;
+	  font-size: 9pt;
+	  margin-top: .5em;
+	  }
+	
+	  table.header {
+	  border-spacing: 1px;
+	  width: 95%;
+	  font-size: 10pt;
+	  color: white;
+	  }
+	  td.top {
+	  vertical-align: top;
+	  }
+	  td.topnowrap {
+	  vertical-align: top;
+	  white-space: nowrap; 
+	  }
+	  table.header td {
+	  background-color: gray;
+	  width: 50%;
+	  }
+	  table.header a {
+	  color: white;
+	  }
+	  td.reference {
+	  vertical-align: top;
+	  white-space: nowrap;
+	  padding-right: 1em;
+	  }
+	  thead {
+	  display:table-header-group;
+	  }
+	  ul.toc, ul.toc ul {
+	  list-style: none;
+	  margin-left: 1.5em;
+	  margin-right: 0em;
+	  padding-left: 0em;
+	  }
+	  ul.toc li {
+	  line-height: 150%;
+	  font-weight: bold;
+	  font-size: 10pt;
+	  margin-left: 0em;
+	  margin-right: 0em;
+	  }
+	  ul.toc li li {
+	  line-height: normal;
+	  font-weight: normal;
+	  font-size: 9pt;
+	  margin-left: 0em;
+	  margin-right: 0em;
+	  }
+	  li.excluded {
+	  font-size: 0pt;
+	  }
+	  ul p {
+	  margin-left: 0em;
+	  }
+	
+	  .comment {
+	  background-color: yellow;
+	  }
+	  .center {
+	  text-align: center;
+	  }
+	  .error {
+	  color: red;
+	  font-style: italic;
+	  font-weight: bold;
+	  }
+	  .figure {
+	  font-weight: bold;
+	  text-align: center;
+	  font-size: 9pt;
+	  }
+	  .filename {
+	  color: #333333;
+	  font-weight: bold;
+	  font-size: 12pt;
+	  line-height: 21pt;
+	  text-align: center;
+	  }
+	  .fn {
+	  font-weight: bold;
+	  }
+	  .hidden {
+	  display: none;
+	  }
+	  .left {
+	  text-align: left;
+	  }
+	  .right {
+	  text-align: right;
+	  }
+	  .title {
+	  color: #990000;
+	  font-size: 18pt;
+	  line-height: 18pt;
+	  font-weight: bold;
+	  text-align: center;
+	  margin-top: 36pt;
+	  }
+	  .vcardline {
+	  display: block;
+	  }
+	  .warning {
+	  font-size: 14pt;
+	  background-color: yellow;
+	  }
+	
+	
+	  @media print {
+	  .noprint {
+		display: none;
+	  }
+	
+	  a {
+		color: black;
+		text-decoration: none;
+	  }
+	
+	  table.header {
+		width: 90%;
+	  }
+	
+	  td.header {
+		width: 50%;
+		color: black;
+		background-color: white;
+		vertical-align: top;
+		font-size: 12pt;
+	  }
+	
+	  ul.toc a::after {
+		content: leader('.') target-counter(attr(href), page);
+	  }
+	
+	  ul.ind li li a {
+		content: target-counter(attr(href), page);
+	  }
+	
+	  .print2col {
+		column-count: 2;
+		-moz-column-count: 2;
+		column-fill: auto;
+	  }
+	  }
+	
+	  @page {
+	  @top-left {
+		   content: "Internet-Draft"; 
+	  } 
+	  @top-right {
+		   content: "December 2010"; 
+	  } 
+	  @top-center {
+		   content: "Abbreviated Title";
+	  } 
+	  @bottom-left {
+		   content: "Doe"; 
+	  } 
+	  @bottom-center {
+		   content: "Expires June 2011"; 
+	  } 
+	  @bottom-right {
+		   content: "[Page " counter(page) "]"; 
+	  } 
+	  }
+	
+	  @page:first { 
+		@top-left {
+		  content: normal;
+		}
+		@top-right {
+		  content: normal;
+		}
+		@top-center {
+		  content: normal;
+		}
+	  }
+  /*]]>*/
+  </style>
+
+  <link href="#rfc.toc" rel="Contents">
+<link href="#rfc.section.1" rel="Chapter" title="1 Introduction">
+<link href="#rfc.section.2" rel="Chapter" title="2 Definition of the HTTP User Header">
+<link href="#rfc.section.3" rel="Chapter" title="3 URI with Resource User">
+<link href="#rfc.section.4" rel="Chapter" title="4 Protocol Handling of URI and User Header">
+<link href="#rfc.section.5" rel="Chapter" title="5 The Logic of User in HTTP">
+<link href="#rfc.section.6" rel="Chapter" title="6 Environment Variable with Local User">
+<link href="#rfc.section.7" rel="Chapter" title="7 Orthogonality of Authentication (Example)">
+<link href="#rfc.section.8" rel="Chapter" title="8 IANA Considerations">
+<link href="#rfc.section.9" rel="Chapter" title="9 Security Considerations">
+<link href="#rfc.references" rel="Chapter" title="10 References">
+<link href="#rfc.references.1" rel="Chapter" title="10.1 Normative References">
+<link href="#rfc.references.2" rel="Chapter" title="10.2 Informative References">
+<link href="#rfc.appendix.A" rel="Chapter" title="A Compatibility with Basic Authentication">
+<link href="#rfc.appendix.B" rel="Chapter" title="B Compatibility with RESTful Patterns">
+<link href="#rfc.appendix.C" rel="Chapter" title="C Compatibility with Caching">
+<link href="#rfc.appendix.D" rel="Chapter" title="D Acknowledgements">
+<link href="#rfc.authors" rel="Chapter">
+
+
+  <meta name="generator" content="xml2rfc version 2.38.1 - https://tools.ietf.org/tools/xml2rfc" />
+  <link rel="schema.dct" href="http://purl.org/dc/terms/" />
+
+  <meta name="dct.creator" content="Van Rein, R." />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-vanrein-http-unauth-user-05" />
+  <meta name="dct.issued" scheme="ISO8601" content="2020-02-03" />
+  <meta name="dct.abstract" content="Many protocols support users under domain names, but HTTP does not.    This specification defines a header for user names, independent of authenticated identities, and a link to userinfo in HTTP URIs.  This intergrates naturally with HTTP, and results in a more refined resource authentication model, in support of advanced usage scenarios. " />
+  <meta name="description" content="Many protocols support users under domain names, but HTTP does not.    This specification defines a header for user names, independent of authenticated identities, and a link to userinfo in HTTP URIs.  This intergrates naturally with HTTP, and results in a more refined resource authentication model, in support of advanced usage scenarios. " />
+
+</head>
+
+<body>
+
+  <table class="header">
+    <tbody>
+    
+    	<tr>
+<td class="left">Network Working Group</td>
+<td class="right">R. Van Rein</td>
+</tr>
+<tr>
+<td class="left">Internet-Draft</td>
+<td class="right">InternetWide.org</td>
+</tr>
+<tr>
+<td class="left">Intended status: Standards Track</td>
+<td class="right">February 3, 2020</td>
+</tr>
+<tr>
+<td class="left">Expires: August 6, 2020</td>
+<td class="right"></td>
+</tr>
+
+    	
+    </tbody>
+  </table>
+
+  <p class="title">HTTP Resources with User Names<br />
+  <span class="filename">draft-vanrein-http-unauth-user-05</span></p>
+  
+  <h1 id="rfc.abstract"><a href="#rfc.abstract">Abstract</a></h1>
+<p>Many protocols support users under domain names, but HTTP does not.    This specification defines a header for user names, independent of authenticated identities, and a link to userinfo in HTTP URIs.  This intergrates naturally with HTTP, and results in a more refined resource authentication model, in support of advanced usage scenarios.</p>
+<h1 id="rfc.status"><a href="#rfc.status">Status of This Memo</a></h1>
+<p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
+<p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
+<p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
+<p>This Internet-Draft will expire on August 6, 2020.</p>
+<h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
+<p>Copyright (c) 2020 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
+<p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
+
+  
+  <hr class="noprint" />
+  <h1 class="np" id="rfc.toc"><a href="#rfc.toc">Table of Contents</a></h1>
+  <ul class="toc">
+
+  	<li>1.   <a href="#rfc.section.1">Introduction</a>
+</li>
+<li>2.   <a href="#rfc.section.2">Definition of the HTTP User Header</a>
+</li>
+<li>3.   <a href="#rfc.section.3">URI with Resource User</a>
+</li>
+<li>4.   <a href="#rfc.section.4">Protocol Handling of URI and User Header</a>
+</li>
+<li>5.   <a href="#rfc.section.5">The Logic of User in HTTP</a>
+</li>
+<li>6.   <a href="#rfc.section.6">Environment Variable with Local User</a>
+</li>
+<li>7.   <a href="#rfc.section.7">Orthogonality of Authentication (Example)</a>
+</li>
+<li>8.   <a href="#rfc.section.8">IANA Considerations</a>
+</li>
+<li>9.   <a href="#rfc.section.9">Security Considerations</a>
+</li>
+<li>10.   <a href="#rfc.references">References</a>
+</li>
+<ul><li>10.1.   <a href="#rfc.references.1">Normative References</a>
+</li>
+<li>10.2.   <a href="#rfc.references.2">Informative References</a>
+</li>
+</ul><li>Appendix A.   <a href="#rfc.appendix.A">Compatibility with Basic Authentication</a>
+</li>
+<li>Appendix B.   <a href="#rfc.appendix.B">Compatibility with RESTful Patterns</a>
+</li>
+<li>Appendix C.   <a href="#rfc.appendix.C">Compatibility with Caching</a>
+</li>
+<li>Appendix D.   <a href="#rfc.appendix.D">Acknowledgements</a>
+</li>
+<li><a href="#rfc.authors">Author's Address</a>
+</li>
+
+
+  </ul>
+
+  <h1 id="rfc.section.1">
+<a href="#rfc.section.1">1.</a> <a href="#intro" id="intro">Introduction</a>
+</h1>
+<p id="rfc.section.1.p.1">Many protocols support global identities like john@example.com to represent users like john under domains such as example.com.  The URI format for HTTP can express [Section 2.7.1 of <a href="#RFC7230" class="xref">[RFC7230]</a>] such authority components (with a userid named "resource user" herein), with an intended interpretation of locating user-specific resources.  Many online applications publish resources on individual users, but there is no standard in HTTP to express user names to address them.  This specification adds that through a header "User", closely paralleling the "Host" header.</p>
+<p id="rfc.section.1.p.2">Some current URIs for HTTP have used the userinfo field in the URI to express an authentication user (named "client identity" herein), in spite of the intended use to refine the authority information.  This conflates the resource user with the client identity.  This specification defines client identity and resource user as orthogonal concepts, and specifies a clear relation to the URI format.</p>
+<p id="rfc.section.1.p.3">Orthogonality yields a generalisation, but voluntary conflation of client identity and resource user remains possible.  In fact, software may use it as default behaviour.  Servers can be configured with resource users that demand authentication with the same client identity; they may even accept authentication with a client identity as a bypass to the same resource user.  Clients may accept authentication requests and use the resource user from the target URI as a hint to the expected client identity.</p>
+<p id="rfc.section.1.p.4">Orthogonal concepts can however be untied to support advanced use cases.  Servers may use resource users to identify groups and welcome members to authenticate against such a group resource.  While authenticating, client identities can be drawn from another domain, so it is possible to "bring your own identity" as long as the server can rely on a mechanism of realm crossover for credentials.</p>
+<p id="rfc.section.1.p.5">TOBEREMOVED: We have designed two mechanisms for realm crossover in other specifications; SXOVER is a SASL mechanism for realm crossover via a Diameter backend, which can be provisioned to user agents through HTTP SASL; KXOVER is a Kerberos mechanism that is taken care of in the KDC.  Both rely on DNSSEC, DANE and TLS.</p>
+<p id="rfc.section.1.p.6">The purpose of this specification is to define clear meaning for http and https URIs and their userinfo mappings to HTTP.</p>
+<h1 id="rfc.section.2">
+<a href="#rfc.section.2">2.</a> <a href="#header" id="header">Definition of the HTTP User Header</a>
+</h1>
+<p id="rfc.section.2.p.1">The "User" header carries a resource user as part of the requested authority, and therefore refines the resource name scope.  The value can be explicitly inserted  or be the user in the userinfo component of the target URI.</p>
+<pre>
+User = *( unreserved / pct-encoded / sub-delims )
+</pre>
+<p id="rfc.section.2.p.2">The User header value holds precisely one value with the following ABNF grammar: <a href="#RFC3986" class="xref">[RFC3986]</a> and can be directly included in the quoted-string header form; a plain token cannot express "(", ")", "=", ";" and "," without escaping [Section 3.2.6 of <a href="#RFC7230" class="xref">[RFC7230]</a>].  Note that the header MUST NOT include a ":" colon (U+003a) character.</p>
+<h1 id="rfc.section.3">
+<a href="#rfc.section.3">3.</a> <a href="#uri" id="uri">URI with Resource User</a>
+</h1>
+<p id="rfc.section.3.p.1">This section is informative.</p>
+<p id="rfc.section.3.p.2">Naming a user in the authority component of a URI is a general idea, already used for addressing users with SMTP, SIP, XMPP and many other protocols.  The addition of users in the URIs for HTTP, a refined resource name is provided, and better crossover of identities with these protocols can be achieved.  Unlike server-specific user name mapping conventions, the specified generic meaning of URI userinfo as part of the authority information enables such crossovers to be automated.</p>
+<p id="rfc.section.3.p.3">There is a current practice of writing a client identity in the userinfo portion of a URI.  This is considered useful if it adds Basic authentication to the first request; Basic can do this because it does not incorporate a server-sent challenge.</p>
+<p id="rfc.section.3.p.4">Having never been standardised, the mechanistic side of this practice is highly diverse, and URIs are far from portable between browsers or even the various places where they occur within one browser.  As a result, these URIs cannot be distributed freely and their usage pattern is dedicated to the client software in use.  This specification does completely support [<a href="#compat.basic" class="xref">Appendix A</a>] this pattern as a special case.</p>
+<p id="rfc.section.3.p.5">This specification follows the URI's intention of the userinfo field, and prescribes copying its value into the User header.  It will however remove anything from a colon onward, to suppress the portion of userinfo that should not be rendered [Section 3.2.1 of <a href="#RFC3986" class="xref">[RFC3986]</a>] as well as a colon hinting at an empty password.</p>
+<h1 id="rfc.section.4">
+<a href="#rfc.section.4">4.</a> <a href="#protocol" id="protocol">Protocol Handling of URI and User Header</a>
+</h1>
+<p id="rfc.section.4.p.1">Compliant user agents MUST pass userinfo from the target URI (up to but excluding the first colon ":" (U+003a) if it contains any) as a User header field if, and only if, the target URI contains a userinfo part.  They MUST NOT remove userinfo from the target URI during this process.  Empty userinfo MUST be treated as any other userinfo string.</p>
+<p id="rfc.section.4.p.2">The User header MAY appear in requests and MUST NOT occur in responses.  When sending it, the user agent SHOULD generate User as the next header field after Host.  Transparent intermediates such as proxies and caches MUST NOT add, remove or modify the User header.  The CONNECT method and Host header both exclude this information, so the User header complements them.</p>
+<p id="rfc.section.4.p.3">Compliant servers MAY ignore the User header [Section 3.2.1 of <a href="#RFC7230" class="xref">[RFC7230]</a>] and they MAY impose a more restrictive grammar (like a NAI's utf8-username <a href="#RFC7542" class="xref">[RFC7542]</a>) than the URI syntax before further processing it.  When they do use it, the Effective Request URI [Section 5.5 of <a href="#RFC7230" class="xref">[RFC7230]</a>] MUST be constructed with the userinfo and the "@" at delimiter (U+0040) prefixed to the host name and optional port.  Realms are specific to an authority section [Section 2.2 of <a href="#RFC7235" class="xref">[RFC7235]</a>] and so a realm never spans across different userinfo values.</p>
+<p id="rfc.section.4.p.4">As a result of a consistent translation of any User header value into the Effective Request URI, the server would map consistently to resources.  It is merely enabled to include a User header as an extra input variable to this mapping to resources.</p>
+<p id="rfc.section.4.p.5">HTTP caches <a href="#RFC7234" class="xref">[RFC7234]</a> need to differentiate requests based on the User header.  To accommodate that, the Vary header [Section 7.1.4 of <a href="#RFC7231" class="xref">[RFC7231]</a>] MUST be generated by the server in the matching response, and the header MUST either be a single "*" star (U+002a) or list the "User" name, for all responses whose processing was influenced by the User header.  This requirement has no bearing on software and configurations that ignore the User header.</p>
+<p id="rfc.section.4.p.6">Compliant user agents MUST NOT change the support of the User header depending on the source of a reference; be it a redirect form a server, a click in a hyperlinked document, a script or a part of a browser interface or an external source.  When processing URIs that are relative to the context of a previous URI, compliant user agents MUST replace the userinfo in the target URI when the new URI specifies an authority component, and MUST keep it otherwise.</p>
+<h1 id="rfc.section.5">
+<a href="#rfc.section.5">5.</a> <a href="#logical" id="logical">The Logic of User in HTTP</a>
+</h1>
+<p id="rfc.section.5.p.1">This section is informative.</p>
+<p id="rfc.section.5.p.2">HTTP structures a number of things around the authority component of its URIs, and the addition of resource users in this position form a logical extension.  This leads to improved user experiences.</p>
+<p id="rfc.section.5.p.3">Realms are identified by a scheme, the authority and a descriptive string passed with authentication challenges.  Clients can use this combination to decide about a client identity to present to a server; it is common for people to have roles relative to one another, and the standard definition of realm identity allows the user agent to select an identity to match the role for the remote party.  This can even be used for credentials passed in the TLS handshake, such as X.509 certificates.</p>
+<p id="rfc.section.5.p.4">A similar logic is found for robot exclusion files.  They are found at a path /robots.txt for a given scheme and authority.  The inclusion of the resource user in the authority enables personal pages to each have their own robot exclusion file.</p>
+<p id="rfc.section.5.p.5">More futuristic would be a suggestion that a server may relay connections to user-operated web servers on the basis of the resource user; this is once again an intended use of the authority field.  It may not be possible under current specifications yet, but HTTP with User header can support it as soon as TLS can.</p>
+<h1 id="rfc.section.6">
+<a href="#rfc.section.6">6.</a> <a href="#envvar" id="envvar">Environment Variable with Local User</a>
+</h1>
+<p id="rfc.section.6.p.1">The following variable SHOULD be passed to applications that run on top of the HTTP stack in a server: </p>
+
+<dl>
+<dt>LOCAL_USER</dt>
+<dd style="margin-left: 6">gives the HTTP User header value after syntax checking and percent-decoding.  If used at all, it MUST be treated as a resource user.  This header does not describe the authenticated client identity, which is usually passed in a variable REMOTE_USER.</dd>
+</dl>
+<h1 id="rfc.section.7">
+<a href="#rfc.section.7">7.</a> <a href="#ortho" id="ortho">Orthogonality of Authentication (Example)</a>
+</h1>
+<p id="rfc.section.7.p.1">This section is informative.</p>
+<p id="rfc.section.7.p.2">This section provides an example of an advanced use case.  Not only does this use the resource user to locate a shared server account, it is also distinct from the client identity used during authentication.  Whether the client identity is welcomed by the resource user is determined with an access control list.  Furthermore, this example shows the logic of a realm identity that involves the resource user in finding the right client identity to the contacted resource user.</p>
+<pre>
+GET /docs HTTP/1.1
+Host: example.com
+User: sales
+</pre>
+<pre>
+HTTP/1.1 301 Moved Permanently
+Location: /docs/
+Vary: User
+</pre>
+<pre>
+GET /docs/ HTTP/1.1
+Host: example.com
+User: sales
+</pre>
+<pre>
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: KnockKnock realm="Documents"
+Vary: User
+</pre>
+<pre>
+GET /docs/ HTTP/1.1
+Host: example.com
+User: sales
+Authorization: KnockKnock realm="Documents", user="mary", ...
+</pre>
+<pre>
+HTTP/1.1 200 OK
+Vary: User
+Content-Type: text/html
+
+...
+&lt;a href="/docs/review.cgi?docid=123"&gt;Review 123 now&lt;/a&gt;
+...
+</pre>
+<pre>
+GET /docs/review.cgi?docid=123 HTTP/1.1
+Host: example.com
+User: sales
+Authorization: KnockKnock realm="Documents", user="mary", ...
+</pre>
+<p id="rfc.section.7.p.3">John and Mary are both part of the Sales group of Example, Inc and John has written a document that he wants Mary to review.  Mary opens a link to the document name space under the group's shared account "sales" at https://sales@example.com/docs and her user agent sends: </p>
+<h1 id="rfc.section.8">
+<a href="#rfc.section.8">8.</a> <a href="#iana" id="iana">IANA Considerations</a>
+</h1>
+<pre>
+Header Field Name   Template   Protocol   Status    Reference
+------------------  ---------  ---------  -------   ----------
+User                           http       TBD       TBD:THIS_SPEC
+</pre>
+<p id="rfc.section.8.p.1">Please add the following entry to the Message Headers registry: </p>
+<h1 id="rfc.section.9">
+<a href="#rfc.section.9">9.</a> Security Considerations</h1>
+<p id="rfc.section.9.p.1">The User header field as defined herein is orthogonal to issues of authentication and authorisation, and adds no security concerns.</p>
+<h1 id="rfc.references">
+<a href="#rfc.references">10.</a> References</h1>
+<h1 id="rfc.references.1">
+<a href="#rfc.references.1">10.1.</a> Normative References</h1>
+<table><tbody>
+<tr>
+<td class="reference"><b id="RFC3986">[RFC3986]</b></td>
+<td class="top">
+<a>Berners-Lee, T.</a>, <a>Fielding, R.</a> and <a>L. Masinter</a>, "<a href="https://tools.ietf.org/html/rfc3986">Uniform Resource Identifier (URI): Generic Syntax</a>", STD 66, RFC 3986, DOI 10.17487/RFC3986, January 2005.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC7230">[RFC7230]</b></td>
+<td class="top">
+<a>Fielding, R.</a> and <a>J. Reschke</a>, "<a href="https://tools.ietf.org/html/rfc7230">Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</a>", RFC 7230, DOI 10.17487/RFC7230, June 2014.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC7231">[RFC7231]</b></td>
+<td class="top">
+<a>Fielding, R.</a> and <a>J. Reschke</a>, "<a href="https://tools.ietf.org/html/rfc7231">Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>", RFC 7231, DOI 10.17487/RFC7231, June 2014.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC7234">[RFC7234]</b></td>
+<td class="top">
+<a>Fielding, R.</a>, <a>Nottingham, M.</a> and <a>J. Reschke</a>, "<a href="https://tools.ietf.org/html/rfc7234">Hypertext Transfer Protocol (HTTP/1.1): Caching</a>", RFC 7234, DOI 10.17487/RFC7234, June 2014.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC7235">[RFC7235]</b></td>
+<td class="top">
+<a>Fielding, R.</a> and <a>J. Reschke</a>, "<a href="https://tools.ietf.org/html/rfc7235">Hypertext Transfer Protocol (HTTP/1.1): Authentication</a>", RFC 7235, DOI 10.17487/RFC7235, June 2014.</td>
+</tr>
+</tbody></table>
+<h1 id="rfc.references.2">
+<a href="#rfc.references.2">10.2.</a> Informative References</h1>
+<table><tbody><tr>
+<td class="reference"><b id="RFC7542">[RFC7542]</b></td>
+<td class="top">
+<a>DeKok, A.</a>, "<a href="https://tools.ietf.org/html/rfc7542">The Network Access Identifier</a>", RFC 7542, DOI 10.17487/RFC7542, May 2015.</td>
+</tr></tbody></table>
+<h1 id="rfc.appendix.A">
+<a href="#rfc.appendix.A">Appendix A.</a> <a href="#compat.basic" id="compat.basic">Compatibility with Basic Authentication</a>
+</h1>
+<p id="rfc.section.A.p.1">This appendix is informative.</p>
+<p id="rfc.section.A.p.2">Basic authentication is regularly used as a quick and easy HTTP authentication technique.  Several user agents continue to support it with the "user:password@" URI prefix to a hostname, despite its deprecation [Section 3.2.1 of <a href="#RFC3986" class="xref">[RFC3986]</a>].  This specification imposes no new constraints on this practice; it merely prescribes sending the User header field, and leaves it to client software whether to also sends Basic authentication.</p>
+<p id="rfc.section.A.p.3">The mapping from HTTP requests to resources is the prerogative of the server.  A server supportive of resource selection through Basic authentication could ignore the User header field and still comply with this specification.  A server that does recognise the User header field would use it to locate a resource, before deciding about access control to that resource; it may subsequently require authentication, and select schemes that could be supported.  At this time, it may or may not welcome an added Basic authentication attempt.  All this depends on server configuration.</p>
+<p id="rfc.section.A.p.4">This flexibility can support a transition from Basic authentication to User headers on the server, and allows client software to also migrate by first adding the User header, and later supporting the advanced uses by allowing differentiation between resource user and client identity.  Server administrators have a free choice whether to gradually phase out older clients or to continue to support them.</p>
+<p id="rfc.section.A.p.5">Sending both the User header and Basic authentication is only to be expected from user agents who conflate resource user with client identity.  Such user agents will be less flexible, and will not be able to support more advanced usage patterns that separate these concepts, such as shared/group resources addressed with the User header field and, when desired, authentication through a set of other headers.</p>
+<h1 id="rfc.appendix.B">
+<a href="#rfc.appendix.B">Appendix B.</a> <a href="#compat.rest" id="compat.rest">Compatibility with RESTful Patterns</a>
+</h1>
+<p id="rfc.section.B.p.1">This appendix is informative.</p>
+<p id="rfc.section.B.p.2">Whether and how the User header is interpreted is the prerogative of the server.  The server will translate resources in the same manner when provided with the same User header, and may do so without regard for the HTTP method.  The main concern is now if it will be addressed in the same manner in every case.  This depends on the user agents.</p>
+<p id="rfc.section.B.p.3">Development environments make sending the User header field simple, so application support is as easy as the applications are flexible.  Binary user agents and ones that may lag behind in updates do however call for backward compatibility support of consistent translation to resources.</p>
+<p id="rfc.section.B.p.4">Backward compatibility can be guaranteed for host names that always require a User header; all resources would be described with URIs having a (possibly empty) userinfo field.  Failure to send a User header to such resources when the URI holds userinfo indicates that the user agent fails to support the User header.  When an offer for Basic authentication is presented, it may be interpreted as the conflated approach to userinfo, and treated as a substitute for the User header.  If neither is offered, then an error may be reported or control redirected to another means of selecting a resource user, perhaps through an alternate local naming convention.</p>
+<p id="rfc.section.B.p.5">This indicates that the server is able to detect inconsistent tranlation risks, and avoid accidentally binding a request to an unintended resource as a result of a missing User header.</p>
+<h1 id="rfc.appendix.C">
+<a href="#rfc.appendix.C">Appendix C.</a> <a href="#compat.cache" id="compat.cache">Compatibility with Caching</a>
+</h1>
+<p id="rfc.section.C.p.1">This appendix is informative.</p>
+<p id="rfc.section.C.p.2">Whether and how the User header is used to find resources is the prerogative of their server.  A conservative cache design might insert the User header value in request URIs, but lose the capability of seeing the equivalence of a resource as perceived by the server.  The inclusion of the name "User" in the Vary header of the response adds explicit non-equivalence information, and thereby provides a more accurate cache controlling instruction.</p>
+<p id="rfc.section.C.p.3">Whether a result is "private" is independent of the User header, as that only signifies a refinement of the resource name space on the server.  The rules that signify authentication as default indicator of privacy is orthogonal to the User header.  Independent inclusion of Basic authentication may still invalidate caching, but not as a result of this specification.</p>
+<p id="rfc.section.C.p.4">User agents that send Basic authentication will invalidate intermediate caching.  When an empty password is used to select a resource user, it would improve caching performance to switch from Basic authentication to the User header.</p>
+<h1 id="rfc.appendix.D">
+<a href="#rfc.appendix.D">Appendix D.</a> <a href="#ack" id="ack">Acknowledgements</a>
+</h1>
+<p id="rfc.section.D.p.1">This specification could be improved thanks to input from Daniel Stenberg, Amos Jeffries, Paul Vixie, James Fuller and Henri Manson.</p>
+<h1 id="rfc.authors"><a href="#rfc.authors">Author's Address</a></h1>
+<div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Rick van Rein</span> 
+	  <span class="n hidden">
+		<span class="family-name">Van Rein</span>
+	  </span>
+	</span>
+	<span class="org vcardline">InternetWide.org</span>
+	<span class="adr">
+	  <span class="vcardline">Haarlebrink 5</span>
+
+	  <span class="vcardline">
+		<span class="locality">Enschede</span>,  
+		<span class="region">Overijssel</span> 
+		<span class="code">7544 WP</span>
+	  </span>
+	  <span class="country-name vcardline">The Netherlands</span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:rick@openfortress.nl">rick@openfortress.nl</a></span>
+
+  </address>
+</div>
+
+</body>
+</html>

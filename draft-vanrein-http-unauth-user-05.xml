@@ -29,7 +29,7 @@
 		</address>
 	</author>
 
-	<date day="31" month="January" year="2200"/>
+	<date day="3" month="February" year="2020"/>
 
 	<abstract>
 	<t>Many protocols support users under domain names, but HTTP does
@@ -355,7 +355,7 @@ logical extension.  This leads to improved user experiences.</t>
 
 <t>Realms are identified by a scheme, the authority and a descriptive string
 passed with authentication challenges.  Clients can use this combination to
-decide about a user identity to present to a server; it is common for
+decide about a client identity to present to a server; it is common for
 people to have roles relative to one another, and the standard definition
 of realm identity allows the user agent to select an identity to match
 the role for the remote party.  This can even be used for credentials
@@ -425,7 +425,7 @@ Host: example.com
 User: sales
 ]]></artwork></figure>
 By this time, the server runs into access control, and decides that it
-needs an authenticated user identity.  To this end, it responds with a
+needs an authenticated client identity.  To this end, it responds with a
 challenge to the "Documents" realm:
 <figure><artwork><![CDATA[
 HTTP/1.1 401 Unauthorized
