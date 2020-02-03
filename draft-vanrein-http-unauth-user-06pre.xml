@@ -9,7 +9,7 @@
 <?rfc comments="yes" ?>
 <?rfc inline="yes" ?>
 
-<rfc ipr="trust200902" docName="draft-vanrein-http-unauth-user-05" category="std">
+<rfc ipr="trust200902" docName="draft-vanrein-http-unauth-user-06" category="std">
 
 <front>
 
@@ -29,7 +29,7 @@
 		</address>
 	</author>
 
-	<date day="3" month="February" year="2020"/>
+	<date day="3" month="February" year="2200"/>
 
 	<abstract>
 	<t>Many protocols support users under domain names, but HTTP does
