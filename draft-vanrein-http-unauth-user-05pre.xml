@@ -35,7 +35,8 @@
 	<t>Many protocols support users under domain names, but HTTP does
 	not.  Usage patterns in the wild do suggest a desire to have this
 	facility.  This specification defines a header for user names,
-	orthogonal to authenticated identities.</t>
+	orthogonal to authenticated identities, resulting in a more powerful
+	identity model for HTTP.</t>
 	</abstract>
 
 </front>
@@ -43,6 +44,7 @@
 <!--
 
 CHANGES FROM 04 TO 05:
+ * Cache performance improves when moving from Basic auth to User
 
 CHANGES FROM 03 TO 04:
  * User header is not all of userinfo, but stops at a colon
@@ -138,13 +140,16 @@ https URIs and their userinfo mappings to HTTP.</t>
 </section>
 
 
-<section title="The HTTP User Header" anchor="header">
+<section title="Definition of the HTTP User Header" anchor="header">
 
-<t>The "User" header field provides an aspect of the desired
-resource name scope.  The value can be inserted by software or be taken
+<t>The "User" header field provides the user aspect of the requested
+authority, and therefore refines the resource name scope.
+The value can be inserted by software or be <!-- taken
 from the visible portion of the userinfo component
 [Section 3.2 of <xref target="RFC3986"/>]
-of the target URI but it MUST NOT include a ":" colon (U+003a) character.</t>
+of -->
+derived from the userinfor component of
+the target URI but it MUST NOT include a ":" colon (U+003a) character.</t>
 
 <t>The User header value holds
 precisely one value with the following ABNF grammar:
@@ -222,7 +227,7 @@ MAYBE:
 <t>This section is informative.</t>
 
 <t>The use of a user name in the authority component of a URI is a general
-concept, already used for addressing users with SMTP,
+idea, already used for addressing users with SMTP,
 SIP, XMPP and many other protocols.  By allowing users in HTTP resource
 names, better crossover of identities with these protocols can be
 achieved.  Unlike server-specific user name mapping conventions, the specified
@@ -238,7 +243,7 @@ this because it does not incorporate a server-sent challenge.</t>
 highly diverse, and URIs are far from portable between browsers or even the
 various places where they occur within one browser.  As a result, these URIs
 cannot be spread freely and their usage pattern is dedicated to the client
-software in use.  On grounds of this immobility, it would have been sufficient
+software in use.  On grounds of this immobility, it would be sufficient
 to not break this practice.  What this specification does is completely
 support [<xref target="compat.basic"/>] this pattern as a special case.</t>
 
@@ -258,18 +263,18 @@ would be accessible.</t>
 </section>
 
 
-<section title="Protocol Handling of URI and User" anchor="protocol">
+<section title="Protocol Handling of URI and User Header" anchor="protocol">
 
-<t>User agents are supposed to render userinfo in the target URI
-(up to the first colon ":" (U+003a)
+<t>Compliant user agents MUST render userinfo in the target URI
+(up to but excluding the first colon ":" (U+003a)
 if it contains any [Section 3.2.1 of <xref target="RFC3986"/>])
 where it may be helpful if it stands out graphically
-[Section 7.6 of <xref target="RFC3986"/>].
-User agents SHOULD NOT remove userinfo from the target URI.</t>
+[Section 7.6 of <xref target="RFC3986"/>].</t>
 
 <t>Compliant user agents MUST pass userinfo in the target URI
-(up to the first colon ":" (U+003a) if it contains any) as a User
-header field if, and only if, the target URI contains a userinfo part.</t>
+(up to but excluding the first colon ":" (U+003a) if it contains any) as a User
+header field if, and only if, the target URI contains a userinfo part.
+They MUST NOT remove userinfo from the target URI during this process.</t>
 
 <t>The User header MAY appear in requests and MUST NOT occur in responses.
 <!-- also not in trailers [Section 4.1 of <xref target="RFC7230"/>].  -->
@@ -474,7 +479,7 @@ This specification imposes no new constraints on this practice; it merely
 prescribes to send the User header field, and leaves it to client software
 whether it also sends Basic authentication.</t>
 
-<t>The mapping from authority names to resources is the prerogative
+<t>The mapping from HTTP requests to resources is the prerogative
 of the server.  A server supportive of resource selection through Basic
 authentication could ignore the User header field and still comply with
 this specification.  A server that does recognise the User header field would
@@ -551,6 +556,11 @@ The rules that signify authentication as default indicator of privacy
 is orthogonal to the User header.  Independent inclusion of Basic
 authentication may still invalidate caching, but not as a result of this
 specification.</t>
+
+<t>User agents that send Basic authentication will invalidate intermediate
+caching.  When an empty password is used to select a resource user, it would
+improve caching performance to switch from Basic authentication to the
+User header.</t>
 
 </section>
 
